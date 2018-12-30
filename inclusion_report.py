@@ -8,10 +8,23 @@ import json
 import os
 import itertools
 import sys
+import chardet
 from pygments.token import Token
 
 
 def read_pythons_from_file(filename: str)-> Iterable[str]:
+    def read_nasty_file()-> str:
+        try:
+            with open(filename, 'r', encoding='utf-8') as tf:
+                return tf.read()
+        except UnicodeDecodeError as ue:
+            print("Не осилил(а) UTF-8: %s" % (filename), file=sys.stderr)
+            with open(filename, 'rb') as bf:
+                bts = bf.read()
+                ec = chardet.detect(bts)
+                print(" - и на %f использовал(а) %s" % (ec['confidence'], ec['encoding']), file=sys.stderr)
+                return bts.decode(ec['encoding'])
+
     def read_pythons_from_notebook() -> Iterable[str]:
         '''Too lazy to look for Jupyter API'''
         try:
@@ -33,9 +46,7 @@ def read_pythons_from_file(filename: str)-> Iterable[str]:
     else:
         try:
             with open(filename, 'r', encoding='utf-8') as py:
-                yield py.read()
-        except UnicodeDecodeError as ue:
-            print("Не осилил UTF-8: %s" % (filename), repr(ue), file=sys.stderr)
+                yield read_nasty_file()
         except Exception as e:
             print("Error reading %s" % (filename), repr(e), file=sys.stderr)
 
