@@ -51,7 +51,6 @@ class PythonSource:
 
         return raw_lexemes, fingerprint_lexemes
 
-
     @staticmethod
     def read_pythons_from_file(filename: str)-> Iterable['PythonSource']:
         def read_nasty_file()-> str:
@@ -63,7 +62,8 @@ class PythonSource:
                 with open(filename, 'rb') as bf:
                     bts = bf.read()
                     ec = chardet.detect(bts)
-                    print(" - и на %f использовал(а) %s" % (ec['confidence'], ec['encoding']), file=sys.stderr)
+                    print(" - и на %f использовал(а) %s" %
+                          (ec['confidence'], ec['encoding']), file=sys.stderr)
                     return bts.decode(ec['encoding'])
 
         def read_pythons_from_notebook() -> Iterable['PythonSource']:
@@ -81,7 +81,11 @@ class PythonSource:
                             rl, fl = PythonSource._lex_python_source(src)
                             yield PythonSource(filename, n, rl, fl)
             except Exception as e:
-                print("Error reading %s" % (filename), repr(e), file=sys.stderr)
+                print(
+                    "Error reading %s" %
+                    (filename),
+                    repr(e),
+                    file=sys.stderr)
 
         if filename.endswith('.ipynb'):
             yield from read_pythons_from_notebook()
@@ -92,7 +96,11 @@ class PythonSource:
                 rl, fl = PythonSource._lex_python_source(src)
                 yield PythonSource(filename, None, rl, fl)
             except Exception as e:
-                print("Error reading %s" % (filename), repr(e), file=sys.stderr)
+                print(
+                    "Error reading %s" %
+                    (filename),
+                    repr(e),
+                    file=sys.stderr)
 
 
 def globs()-> List[str]:
@@ -115,7 +123,9 @@ if __name__ == '__main__':
     for ps in srcs:
         try:
             print(
-                "%s#%02d" % (ps.file_name, ps.file_index) if ps.file_index is not None else ps.file_name,
+                "%s#%02d" % (
+                    ps.file_name,
+                    ps.file_index) if ps.file_index is not None else ps.file_name,
                 " ".join(ps.fingerprint_lexemes)
             )
         except Exception as e:
