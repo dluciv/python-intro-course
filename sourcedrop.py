@@ -4,6 +4,7 @@ import dataclasses
 import itertools
 import json
 import sys
+import difflib
 from typing import Optional, List, Tuple, Iterable, Any
 
 import chardet
@@ -26,6 +27,30 @@ class PythonSource:
     file_index: Optional[int]
     raw_lexemes: List[str]
     fingerprint_lexemes: List[str]
+
+    @property
+    def id_repr(self):
+        return\
+            "%s[%02d]" % (
+                self.file_name,
+                self.file_index) if self.file_index is not None else self.file_name
+
+    def borrowed_fraction_from(
+            self, other: 'PythonSource', depersonate: bool = True)-> Optional[float]:
+        """Tells, what fraction of current source was (if it was) likely borrowed from another one"""
+        if self is other or self.id_repr == other.id_repr:
+            return None
+
+        self_lex, other_lex = (
+            self.fingerprint_lexemes, other.fingerprint_lexemes) if depersonate else (
+            self.raw_lexemes, other.raw_lexemes)
+        sm = difflib.SequenceMatcher(
+            None,
+            self.fingerprint_lexemes,
+            other.fingerprint_lexemes,
+            False)  # type: ignore
+        common = sum(b.size for b in sm.get_matching_blocks())
+        return float(common / len(self.fingerprint_lexemes))
 
     @staticmethod
     def _lex_python_source(source_code: str) -> Tuple[List, List]:
