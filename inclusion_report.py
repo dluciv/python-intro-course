@@ -66,6 +66,21 @@ def get_args()-> argparse.Namespace:
     return apr.parse_args()
 
 
+def _is_same_guy(bad_filename: str, good_gilename: str, bad_root: str, good_root: str)-> bool:
+    """If files belong to the same guy to skip the check"""
+
+    bad_root = os.path.normpath(bad_root).lstrip(os.path.sep).rstrip(os.path.sep)
+    good_root = os.path.normpath(good_root).lstrip(os.path.sep).rstrip(os.path.sep)
+
+    bad_filename = os.path.normpath(bad_filename).lstrip(os.path.sep).rstrip(os.path.sep)
+    good_gilename = os.path.normpath(good_gilename).lstrip(os.path.sep).rstrip(os.path.sep)
+
+    bad_filename = bad_filename.replace(bad_root + os.path.sep, "")
+    good_gilename = good_gilename.replace(good_root + os.path.sep, "")
+
+    return bad_filename.split(os.path.sep)[0] == good_gilename.split(os.path.sep)[0]
+
+
 def workflow():
     args = get_args()
 
@@ -79,22 +94,24 @@ def workflow():
 
     total_comparisons = len(good_sources) * len(bad_sources)
     done_comparisons = 0
+
     for b in bad_sources:
         for g in good_sources:
-            borrowed_fraction = b.borrowed_fraction_from(g, False)
-            if sys.stdout.isatty():
-                print(
-                    "%d / %d" %
-                    (done_comparisons,
-                     total_comparisons),
-                    end='\r')
-                sys.stdout.flush()
-            if borrowed_fraction is not None and borrowed_fraction >= ts:
-                print("%02d%% of %s borrowed from %s" % (
-                    int(100.0 * borrowed_fraction),
-                    b.id_repr,
-                    g.id_repr
-                ))
+            if not _is_same_guy(b.file_name, g.file_name, args.bad_guys, args.good_guys):
+                borrowed_fraction = b.borrowed_fraction_from(g, False)
+                if sys.stdout.isatty():
+                    print(
+                        "%d / %d" %
+                        (done_comparisons,
+                         total_comparisons),
+                        end='\r')
+                    sys.stdout.flush()
+                if borrowed_fraction is not None and borrowed_fraction >= ts:
+                    print("%02d%% of %s borrowed from %s" % (
+                        int(100.0 * borrowed_fraction),
+                        b.id_repr,
+                        g.id_repr
+                    ))
             done_comparisons += 1
     # TODO:
 
