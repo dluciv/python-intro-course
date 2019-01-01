@@ -47,24 +47,41 @@ def get_args()-> argparse.Namespace:
         "-gg",
         "--good-guys",
         help="Sources of good guys, who code",
-        required=True)
+        required=True
+    )
     apr.add_argument(
         "-bg",
         "--bad-guys",
         help="Sources of presumably bad guys, who can steal",
-        required=True)
+        required=True
+    )
     apr.add_argument(
         "-bt",
         "--borrow-threshold",
         help="Max amount of borrowed code to remain good",
         type=float,
-        default=0.5)
+        default=0.25
+    )
+    apr.add_argument(
+        "-cm",
+        "--check-method",
+        help="Check all lexemes or only structure (keywords, etc.) ones",
+        choices=['all', 'structure'],
+        default='all'
+    )
     apr.add_argument(
         "-ml",
         "--min-length",
-        help="Minimal number of tokens in source to teke it in account",
+        help="Minimal number of tokens in source to take it in account",
         type=int,
         default=20
+    )
+    apr.add_argument(
+        "-mml",
+        "--min-match-length",
+        help="Minimal length of text fragment to take in account",
+        type=int,
+        default=5
     )
     apr.add_argument(
         "-nm",
@@ -94,27 +111,34 @@ def _is_same_guy(bad_filename: str, good_filename: str,
     good_filename = good_filename.replace(good_root + os.path.sep, '')
 
     return bad_filename.split(os.path.sep)[0] == \
-           good_filename.split(os.path.sep)[0]
+        good_filename.split(os.path.sep)[0]
 
 
-_borrow_threshold: float
+_borrow_threshold: float = -0.0
+_minimal_match_length: int = -1
+_depersonate_check: bool = False
 
 
-def compare_srcs(bad_good: Tuple[PythonSource,
-                                 PythonSource])-> Tuple[str, str, Optional[float]]:
-    global _borrow_threshold
+def compare_srcs(
+        bad_good: Tuple[PythonSource, PythonSource]
+)-> Tuple[str, str, Optional[float]]:
+    global _borrow_threshold, _minimal_match_length, _depersonate_check
     bad, good = bad_good
-    borrowed_fraction = bad.borrowed_fraction_from(good, True)
+    borrowed_fraction = bad.borrowed_fraction_from(
+        good, _depersonate_check, _minimal_match_length)
     return bad.id_repr, good.id_repr, borrowed_fraction
 
 
 def workflow():
-    global _borrow_threshold
+    global _borrow_threshold, _minimal_match_length, _depersonate_check
     args = get_args()
+
+    _borrow_threshold = args.borrow_threshold  # type: ignore
+    _depersonate_check = args.check_method != 'all'  # type: ignore
+    _minimal_match_length = args.min_match_length  # type: ignore
 
     gs = globs(args.good_guys)  # type: ignore
     bs = globs(args.bad_guys)   # type: ignore
-    _borrow_threshold = args.borrow_threshold  # type: ignore
     ml = args.min_length
 
     print("Looking for them...")

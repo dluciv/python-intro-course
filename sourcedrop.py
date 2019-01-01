@@ -36,7 +36,7 @@ class PythonSource:
                 self.file_index) if self.file_index is not None else self.file_name
 
     def borrowed_fraction_from(
-            self, other: 'PythonSource', depersonate: bool = True)-> Optional[float]:
+            self, other: 'PythonSource', depersonate: bool, minimal_match_length: int)-> Optional[float]:
         """Tells, what fraction of current source was (if it was)
         likely borrowed from another one"""
         if self is other or self.id_repr == other.id_repr:
@@ -53,7 +53,8 @@ class PythonSource:
             other_lex,
             False
         )  # type: ignore
-        common = sum(b.size for b in sm.get_matching_blocks())
+        common = sum(b.size for b in sm.get_matching_blocks()
+                     if b.size >= minimal_match_length)
         return float(common / len(self.fingerprint_lexemes))
 
     @staticmethod
@@ -68,6 +69,8 @@ class PythonSource:
             raw_lexemes.append(tvalue.strip())
             if ttype == Token.Text:
                 fingerprint_lexemes.append('&""')
+            elif ttype == Token.Const:
+                fingerprint_lexemes.append('&const')
             elif ttype == Token.Name:
                 fingerprint_lexemes.append('&name')
             elif ttype == Token.Comment.Single:
