@@ -53,9 +53,12 @@ class PythonSource:
             other_lex,
             False
         )  # type: ignore
-        common = sum(b.size for b in sm.get_matching_blocks()
+
+        common = sm.get_matching_blocks()
+        common_size = sum(b.size for b in sm.get_matching_blocks()
                      if b.size >= minimal_match_length)
-        return float(common / len(self.fingerprint_lexemes))
+
+        return float(common_size / len(self_lex))
 
     @staticmethod
     def _lex_python_source(source_code: str) -> Tuple[List, List]:
@@ -66,17 +69,24 @@ class PythonSource:
         fingerprint_lexemes = []
 
         for ttype, tvalue in tokens:
-            raw_lexemes.append(tvalue.strip())
+            ts = str(tvalue).strip()
+            if len(ts) == 0:
+                continue
+
+            raw_lexemes.append(ts)
+
             if ttype == Token.Text:
+                pass
+            if ttype == Token.String or ttype == Token.Literal.String.Single or ttype == Token.Literal.String.Double:
                 fingerprint_lexemes.append('&""')
-            elif ttype == Token.Const:
+            elif ttype == Token.Const or ttype == Token.Literal.Number.Integer or ttype == Token.Literal.Number.Float:
                 fingerprint_lexemes.append('&const')
-            elif ttype == Token.Name:
+            elif ttype == Token.Name or ttype == Token.Name.Function:
                 fingerprint_lexemes.append('&name')
             elif ttype == Token.Comment.Single:
                 fingerprint_lexemes.append('&#')
             else:
-                fingerprint_lexemes.append(str(tvalue))
+                fingerprint_lexemes.append(ts)
 
         return raw_lexemes, fingerprint_lexemes
 

@@ -114,28 +114,21 @@ def _is_same_guy(bad_filename: str, good_filename: str,
         good_filename.split(os.path.sep)[0]
 
 
-_borrow_threshold: float = -0.0
-_minimal_match_length: int = -1
-_depersonate_check: bool = False
-
-
 def compare_srcs(
-        bad_good: Tuple[PythonSource, PythonSource]
+        settings_bad_good: Tuple[float, int, bool, PythonSource, PythonSource]
 )-> Tuple[str, str, Optional[float]]:
-    global _borrow_threshold, _minimal_match_length, _depersonate_check
-    bad, good = bad_good
+    _borrow_threshold, _minimal_match_length, _depersonate_check, bad, good = settings_bad_good
     borrowed_fraction = bad.borrowed_fraction_from(
         good, _depersonate_check, _minimal_match_length)
     return bad.id_repr, good.id_repr, borrowed_fraction
 
 
 def workflow():
-    global _borrow_threshold, _minimal_match_length, _depersonate_check
     args = get_args()
 
-    _borrow_threshold = args.borrow_threshold  # type: ignore
-    _depersonate_check = args.check_method != 'all'  # type: ignore
-    _minimal_match_length = args.min_match_length  # type: ignore
+    borrow_threshold: float = args.borrow_threshold  # type: ignore
+    depersonate_check: bool = args.check_method != 'all'  # type: ignore
+    minimal_match_length: int = args.min_match_length  # type: ignore
 
     gs = globs(args.good_guys)  # type: ignore
     bs = globs(args.bad_guys)   # type: ignore
@@ -155,7 +148,10 @@ def workflow():
         for g in good_sources:
             if not _is_same_guy(b.file_name, g.file_name,
                                 args.bad_guys, args.good_guys):
-                tasks.append((b, g))
+                tasks.append((
+                    borrow_threshold, minimal_match_length, depersonate_check,
+                    b, g
+                ))
                 total_comparisons += 1
 
     print("Inquiring them...")
@@ -179,7 +175,7 @@ def workflow():
                  ),
                 end='\r')
             sys.stdout.flush()
-        if bo is not None and bo >= _borrow_threshold:
+        if bo is not None and bo >= borrow_threshold:
             print("%02d%% of %s borrowed from %s" % (
                 int(100.0 * bo),
                 bfn,
