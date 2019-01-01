@@ -29,7 +29,7 @@ class PythonSource:
     fingerprint_lexemes: List[str]
 
     @property
-    def id_repr(self):
+    def id_repr(self)-> str:
         return\
             "%s[%02d]" % (
                 self.file_name,
@@ -37,18 +37,22 @@ class PythonSource:
 
     def borrowed_fraction_from(
             self, other: 'PythonSource', depersonate: bool = True)-> Optional[float]:
-        """Tells, what fraction of current source was (if it was) likely borrowed from another one"""
+        """Tells, what fraction of current source was (if it was)
+        likely borrowed from another one"""
         if self is other or self.id_repr == other.id_repr:
             return None
 
         self_lex, other_lex = (
-            self.fingerprint_lexemes, other.fingerprint_lexemes) if depersonate else (
-            self.raw_lexemes, other.raw_lexemes)
+            self.fingerprint_lexemes, other.fingerprint_lexemes
+        ) if depersonate else (
+            self.raw_lexemes, other.raw_lexemes
+        )
         sm = difflib.SequenceMatcher(
             None,
-            self.fingerprint_lexemes,
-            other.fingerprint_lexemes,
-            False)  # type: ignore
+            self_lex,
+            other_lex,
+            False
+        )  # type: ignore
         common = sum(b.size for b in sm.get_matching_blocks())
         return float(common / len(self.fingerprint_lexemes))
 
