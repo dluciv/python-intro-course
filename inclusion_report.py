@@ -121,13 +121,24 @@ def _is_same_guy(bad_filename: str, good_filename: str,
         good_filename.split(os.path.sep)[0]
 
 
+_minimal_match_length: int = 0
+_depersonate_check: bool = False
+
+
 def compare_srcs(
-        settings_bad_good: Tuple[float, int, bool, PythonSource, PythonSource]
+        settings_bad_good: Tuple[PythonSource, PythonSource]
 )-> Tuple[str, str, Optional[float]]:
-    _borrow_threshold, _minimal_match_length, _depersonate_check, bad, good = settings_bad_good
+    global _minimal_match_length, _depersonate_check
+    bad, good = settings_bad_good
     borrowed_fraction = bad.borrowed_fraction_from(
         good, _depersonate_check, _minimal_match_length)
     return bad.id_repr, good.id_repr, borrowed_fraction
+
+
+def compare_srcs_initializer(minimal_match_length: int, depersonate_check: bool):
+    global _borrow_threshold, _minimal_match_length, _depersonate_check
+    _minimal_match_length = minimal_match_length
+    _depersonate_check = depersonate_check
 
 
 def workflow():
@@ -155,18 +166,22 @@ def workflow():
         for g in good_sources:
             if not _is_same_guy(b.file_name, g.file_name,
                                 args.bad_guys, args.good_guys):
-                tasks.append((
-                    borrow_threshold, minimal_match_length, depersonate_check,
-                    b, g
-                ))
+                tasks.append((b, g))
                 total_comparisons += 1
 
     print("Inquiring them...")
 
     if args.no_multiprocessing:  # type: ignore
-        pool = multiprocessing.dummy.Pool(1)
+        pool = multiprocessing.dummy.Pool(
+            1,
+            initializer=compare_srcs_initializer,
+            initargs=(minimal_match_length, depersonate_check)
+        )
     else:
-        pool = multiprocessing.Pool()
+        pool = multiprocessing.Pool(
+            initializer=compare_srcs_initializer,
+            initargs=(minimal_match_length, depersonate_check)
+        )
 
     results = pool.imap_unordered(compare_srcs, tasks)
 
