@@ -11,7 +11,7 @@ import time
 from typing import List, Iterable, Tuple, Optional
 
 from sourcedrop import PythonSource
-
+import report_export
 
 def globs(path: str)-> List[str]:
     filenames = []
@@ -90,6 +90,13 @@ def get_args()-> argparse.Namespace:
         action='store_true',
         required=False
     )
+    apr.add_argument(
+        "-rf",
+        "--report-file",
+        help="OpenDocument spreadsheet to save the report",
+        type=str,
+        required=False
+    )
     return apr.parse_args()
 
 
@@ -163,6 +170,8 @@ def workflow():
 
     results = pool.imap_unordered(compare_srcs, tasks)
 
+    borrowing_facts: List[Tuple[str, str, float]] = []
+
     start_time = time.time()
     for bfn, gfn, bo in results:
         done_comparisons += 1
@@ -176,11 +185,15 @@ def workflow():
                 end='\r')
             sys.stdout.flush()
         if bo is not None and bo >= borrow_threshold:
+            borrowing_facts.append((bfn, gfn, bo))
             print("%02d%% of %s borrowed from %s" % (
                 int(100.0 * bo),
                 bfn,
                 gfn
             ))
+
+    if args.report_file:
+        report_export.export_odf_report(args.report_file, borrowing_facts)
 
 
 if __name__ == '__main__':
