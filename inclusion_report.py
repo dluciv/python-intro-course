@@ -190,7 +190,7 @@ def workflow():
     start_time = time.time()
     for bfn, gfn, bo in results:
         done_comparisons += 1
-        if sys.stdout.isatty():
+        if done_comparisons % 100 == 0 and sys.stdout.isatty():  # % 100 -- Windows console is very slow...
             print(
                 "%d / %d, %.2f/sec" %
                 (done_comparisons,
