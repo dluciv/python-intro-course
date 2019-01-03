@@ -5,11 +5,12 @@ import itertools
 import json
 import sys
 import difflib
+from io import BytesIO
 from typing import Optional, List, Tuple, Iterable, Any
+import tokenize
+import keyword
 
 import chardet
-from pygments.lexers import python as plx
-from pygments.token import Token
 
 
 @dataclasses.dataclass()
@@ -63,27 +64,32 @@ class PythonSource:
     @staticmethod
     def _lex_python_source(source_code: str) -> Tuple[List, List]:
         """Get sequence of lexemes (depersonated and raw) from python source"""
-        lx = plx.Python3Lexer()
-        tokens: Iterable[Tuple[Any, Any]] = lx.get_tokens(source_code)
         raw_lexemes = []
         fingerprint_lexemes = []
 
-        for ttype, tvalue in tokens:
-            ts = str(tvalue).strip()
-            if len(ts) == 0:
+        tokens = tokenize.tokenize(BytesIO(source_code.encode('utf-8')).readline)
+
+        for ttype, tvalue, tstart, tend, tline in tokens:
+            if ttype in (
+                    tokenize.INDENT, tokenize.DEDENT, tokenize.NEWLINE,
+                    tokenize.NL, tokenize.ENDMARKER, tokenize.ERRORTOKEN
+            ):
                 continue
+
+            ts = tvalue.strip()
 
             raw_lexemes.append(ts)
 
-            if ttype == Token.Text:
-                pass
-            if ttype == Token.String or ttype == Token.Literal.String.Single or ttype == Token.Literal.String.Double:
+            if ttype == tokenize.NAME:
+                if keyword.iskeyword(ts):
+                    fingerprint_lexemes.append(ts)
+                else:
+                    fingerprint_lexemes.append('&id')
+            elif ttype == tokenize.STRING:
                 fingerprint_lexemes.append('&""')
-            elif ttype == Token.Const or ttype == Token.Literal.Number.Integer or ttype == Token.Literal.Number.Float:
-                fingerprint_lexemes.append('&const')
-            elif ttype == Token.Name or ttype == Token.Name.Function:
-                fingerprint_lexemes.append('&name')
-            elif ttype == Token.Comment.Single:
+            elif ttype == tokenize.NUMBER:
+                fingerprint_lexemes.append('&num')
+            elif ttype == tokenize.COMMENT:
                 fingerprint_lexemes.append('&#')
             else:
                 fingerprint_lexemes.append(ts)
