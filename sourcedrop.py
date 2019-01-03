@@ -55,7 +55,6 @@ class PythonSource:
             False
         )  # type: ignore
 
-        common = sm.get_matching_blocks()
         common_size = sum(b.size for b in sm.get_matching_blocks()
                      if b.size >= minimal_match_length)
 
