@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
+import datetime
 import glob
 import os
 import sys
@@ -10,10 +10,12 @@ import multiprocessing.dummy
 import time
 from typing import List, Iterable, Tuple, Optional
 
+import tqdm
+
 from sourcedrop import PythonSource
 import report_export
 
-def globs(path: str)-> List[str]:
+def globs(path: str, min_date: Optional[datetime.datetime]=None)-> List[str]:
     filenames = []
     filenames.extend(
         glob.glob(
@@ -30,6 +32,11 @@ def globs(path: str)-> List[str]:
                 '*.ipynb'),
             recursive=True))
     filenames.sort()
+
+    if min_date:
+        ts = min_date.timestamp()
+        filenames = [fn for fn in filenames if os.path.getmtime(fn) >= ts]
+
     return filenames
 
 
@@ -42,6 +49,16 @@ def get_python_sources(
 
 
 def get_args()-> argparse.Namespace:
+
+    # Thanks to https://gist.github.com/monkut/e60eea811ef085a6540f
+    def valid_date_type(arg_date_str):
+        """custom argparse *date* type for user dates values given from the command line"""
+        try:
+            return datetime.datetime.strptime(arg_date_str, "%Y-%m-%d")
+        except ValueError:
+            msg = "Given Date ({0}) not valid! Expected format, YYYY-MM-DD!".format(arg_date_str)
+            raise argparse.ArgumentTypeError(msg)
+
     apr = argparse.ArgumentParser()
     apr.add_argument(
         "-gg",
@@ -84,17 +101,23 @@ def get_args()-> argparse.Namespace:
         default=5
     )
     apr.add_argument(
-        "-nm",
-        "--no-multiprocessing",
-        help="No multiprocessing to debug it easily",
-        action='store_true',
-        required=False
+        "-mfd",
+        "--min-file-date",
+        help="Oldest source file to consider, older ones will be ignored; format: YYYY-MM-DD",
+        type=valid_date_type
     )
     apr.add_argument(
         "-rf",
         "--report-file",
         help="OpenDocument spreadsheet to save the report",
         type=str,
+        required=False
+    )
+    apr.add_argument(
+        "-nm",
+        "--no-multiprocessing",
+        help="No multiprocessing to debug it easily",
+        action='store_true',
         required=False
     )
     return apr.parse_args()
@@ -148,8 +171,8 @@ def workflow():
     depersonate_check: bool = args.check_method != 'all'  # type: ignore
     minimal_match_length: int = args.min_match_length  # type: ignore
 
-    gs = globs(args.good_guys)  # type: ignore
-    bs = globs(args.bad_guys)   # type: ignore
+    gs = globs(args.good_guys, args.min_file_date)  # type: ignore
+    bs = globs(args.bad_guys, args.min_file_date)   # type: ignore
     ml = args.min_length
 
     print("Looking for them...")
@@ -188,25 +211,23 @@ def workflow():
     borrowing_facts: List[Tuple[str, str, float]] = []
 
     start_time = time.time()
+
+    tty = sys.stdout.isatty()
+    if tty:
+        results = tqdm.tqdm(results, total=total_comparisons)
+
     for bfn, gfn, bo in results:
         done_comparisons += 1
-        if done_comparisons % 100 == 0 and sys.stdout.isatty():  # % 100 -- Windows console is very slow...
-            print(
-                "%d / %d, %.2f/sec" %
-                (done_comparisons,
-                 total_comparisons,
-                 done_comparisons / (time.time() - start_time)
-                 ),
-                end='\r')
-            sys.stdout.flush()
         if bo is not None and bo >= borrow_threshold:
             borrowing_facts.append((bfn, gfn, bo))
+            if tty:
+                print('\r')
+                sys.stdout.flush()
             print("%02d%% of %s borrowed from %s" % (
                 int(100.0 * bo),
                 bfn,
                 gfn
             ))
-
     if args.report_file:
         report_export.export_odf_report(args.report_file, borrowing_facts)
 
