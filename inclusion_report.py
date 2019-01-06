@@ -210,8 +210,6 @@ def workflow():
 
     borrowing_facts: List[Tuple[str, str, float]] = []
 
-    start_time = time.time()
-
     tty = sys.stdout.isatty()
     if tty:
         results = tqdm.tqdm(results, total=total_comparisons)
@@ -220,14 +218,13 @@ def workflow():
         done_comparisons += 1
         if bo is not None and bo >= borrow_threshold:
             borrowing_facts.append((bfn, gfn, bo))
-            if tty:
-                print('\r')
-                sys.stdout.flush()
-            print("%02d%% of %s borrowed from %s" % (
-                int(100.0 * bo),
-                bfn,
-                gfn
-            ))
+            (results.write if tty else print)(
+                "%02d%% of %s borrowed from %s" % (
+                    int(100.0 * bo),
+                    bfn,
+                    gfn
+                )
+            )
     if args.report_file:
         report_export.export_odf_report(args.report_file, borrowing_facts)
 
