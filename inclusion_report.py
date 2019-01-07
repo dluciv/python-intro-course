@@ -2,12 +2,14 @@
 # -*- coding: utf-8 -*-
 import datetime
 import glob
+import locale
 import os
 import sys
 import argparse
 import multiprocessing
 import multiprocessing.dummy
-import time
+import subprocess
+import tzlocal
 from typing import List, Iterable, Tuple, Optional
 
 import tqdm
@@ -15,7 +17,29 @@ import tqdm
 from sourcedrop import PythonSource
 import report_export
 
-def globs(path: str, min_date: Optional[datetime.datetime]=None)-> List[str]:
+def get_file_mdate(file_name: str)-> datetime.datetime:
+    try:
+        output: subprocess.Popen = subprocess.Popen(
+            ['git', 'log', '--date=iso', '--format="%ad"', '--', file_name],
+            stdout=subprocess.PIPE
+        )
+        output.wait(5.0)
+        if output.returncode != 0:
+            raise UserWarning("Git return code was %d" % (output.returncode))
+        stdout: bytes = output.communicate()[0]
+        output: Iterable[str] = stdout.decode(locale.getpreferredencoding(False)).split('\n')
+        output = [l.replace('"','').replace("'", '').strip() for l in output]
+        output = [l for l in output if len(l)]
+        firstdate: str = output[-1]
+        if firstdate.endswith('00'):
+            firstdate = firstdate[:-2] + ':00'
+        return datetime.datetime.fromisoformat(firstdate)
+    except Exception as e:
+        print("Error <<%s>> when getting git times for %s" % (str(e), file_name), file=sys.stderr)
+        return datetime.datetime.utcfromtimestamp(os.path.getmtime(file_name))
+
+
+def globs(path: str, min_date: Optional[datetime.datetime])-> List[str]:
     filenames = []
     filenames.extend(
         glob.glob(
@@ -34,8 +58,7 @@ def globs(path: str, min_date: Optional[datetime.datetime]=None)-> List[str]:
     filenames.sort()
 
     if min_date:
-        ts = min_date.timestamp()
-        filenames = [fn for fn in filenames if os.path.getmtime(fn) >= ts]
+        filenames = [fn for fn in filenames if get_file_mdate(fn) >= min_date]
 
     return filenames
 
@@ -54,7 +77,9 @@ def get_args()-> argparse.Namespace:
     def valid_date_type(arg_date_str):
         """custom argparse *date* type for user dates values given from the command line"""
         try:
-            return datetime.datetime.strptime(arg_date_str, "%Y-%m-%d")
+            given_time = datetime.datetime.strptime(arg_date_str, "%Y-%m-%d")
+            tz_time = tzlocal.get_localzone().localize(given_time)
+            return tz_time
         except ValueError:
             msg = "Given Date ({0}) not valid! Expected format, YYYY-MM-DD!".format(arg_date_str)
             raise argparse.ArgumentTypeError(msg)
@@ -101,9 +126,9 @@ def get_args()-> argparse.Namespace:
         default=5
     )
     apr.add_argument(
-        "-mfd",
-        "--min-file-date",
-        help="Oldest source file to consider, older ones will be ignored; format: YYYY-MM-DD",
+        "-mbfd",
+        "--min-bad-file-date",
+        help="Oldest source file of bad guys to consider, older ones will be ignored; format: YYYY-MM-DD",
         type=valid_date_type
     )
     apr.add_argument(
@@ -171,8 +196,8 @@ def workflow():
     depersonate_check: bool = args.check_method != 'all'  # type: ignore
     minimal_match_length: int = args.min_match_length  # type: ignore
 
-    gs = globs(args.good_guys, args.min_file_date)  # type: ignore
-    bs = globs(args.bad_guys, args.min_file_date)   # type: ignore
+    gs = globs(args.good_guys, None)  # type: ignore
+    bs = globs(args.bad_guys, args.min_bad_file_date)   # type: ignore
     ml = args.min_length
 
     print("Looking for them...")

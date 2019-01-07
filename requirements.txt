@@ -1,3 +1,4 @@
 chardet
 odfpy
 tqdm
+tzlocal
