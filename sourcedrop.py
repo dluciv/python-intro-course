@@ -6,7 +6,7 @@ import json
 import sys
 import difflib
 from io import BytesIO
-from typing import Optional, List, Tuple, Iterable, Any
+from typing import Optional, List, Tuple, Iterable
 import tokenize
 import keyword
 
@@ -37,7 +37,8 @@ class PythonSource:
                 self.file_index) if self.file_index is not None else self.file_name
 
     def borrowed_fraction_from(
-            self, other: 'PythonSource', depersonate: bool, minimal_match_length: int)-> Optional[float]:
+            self, other: 'PythonSource', depersonate: bool, minimal_match_length: int
+    )-> Optional[float]:
         """Tells, what fraction of current source was (if it was)
         likely borrowed from another one"""
         if self is other or self.id_repr == other.id_repr:
@@ -56,7 +57,7 @@ class PythonSource:
         )  # type: ignore
 
         common_size = sum(b.size for b in sm.get_matching_blocks()
-                     if b.size >= minimal_match_length)
+                          if b.size >= minimal_match_length)
 
         return float(common_size / len(self_lex))
 
@@ -66,7 +67,8 @@ class PythonSource:
         raw_lexemes = []
         fingerprint_lexemes = []
 
-        tokens = tokenize.tokenize(BytesIO(source_code.encode('utf-8')).readline)
+        tokens = tokenize.tokenize(
+            BytesIO(source_code.encode('utf-8')).readline)
 
         for ttype, tvalue, tstart, tend, tline in tokens:
             if ttype in (
@@ -102,11 +104,13 @@ class PythonSource:
                 with open(filename, 'r', encoding='utf-8') as tf:
                     return tf.read()
             except UnicodeDecodeError as ue:
-                print("Не осилил(а) UTF-8: %s" % (filename), file=sys.stderr)
+                print(
+                    "Author did not master UTF-8: %s" %
+                    (filename), file=sys.stderr)
                 with open(filename, 'rb') as bf:
                     bts = bf.read()
                     ec = chardet.detect(bts)
-                    print(" - и на %f использовал(а) %s" %
+                    print(" - and with confidence of %f used %s" %
                           (ec['confidence'], ec['encoding']), file=sys.stderr)
                     return bts.decode(ec['encoding'])
 

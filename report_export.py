@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import itertools
-import math
 import sys
 import csv
-from typing import Iterable, Tuple
+from typing import Iterable, Tuple, Dict, List, Union
 
 from odf.opendocument import OpenDocumentSpreadsheet
 from odf.style import Style, TextProperties, ParagraphProperties, TableCellProperties
@@ -13,7 +12,8 @@ from odf.text import P, Number
 from odf.table import Table, TableColumn, TableRow, TableCell
 
 
-def export_odf_report(filename: str, borrowing_facts: Iterable[Tuple[str, str, float]]):
+def export_odf_report(
+        filename: str, borrowing_facts: Iterable[Tuple[str, str, float]]):
     # Thanks to https://joinup.ec.europa.eu/svn/odfpy/tags/release-0.9/api-for-odfpy.odt
     # for example of this API
 
@@ -34,26 +34,26 @@ def export_odf_report(filename: str, borrowing_facts: Iterable[Tuple[str, str, f
     cols = sorted(scols)
     rows = sorted(set(bfn for bfn, gfn, bo in borrowing_facts))
 
-    rc = {}
+    rc: Dict[str, int] = {}
+    rr: Dict[str, int] = {}
     for c, i in zip(cols, itertools.count()):
         rc[c] = i
-    rr = {}
     for r, i in zip(rows, itertools.count()):
         rr[r] = i
 
     data = [[0.0] * len(cols) for r in rows]  # to make different list
 
     for bfn, gfn, bo in borrowing_facts:
-        r = rr[bfn]
-        c = rc[gfn]
-        data[r][c] = bo
+        dr = rr[bfn]
+        dc = rc[gfn]
+        data[dr][dc] = bo
 
     # --------- go! ----------
 
     tr = TableRow()
 
     tc = TableCell()
-    tc.addElement(P(text="Borrower \ Source"))
+    tc.addElement(P(text=r"Borrower \ Source"))
     tr.addElement(tc)
 
     for c in cols:
@@ -83,7 +83,8 @@ def export_odf_report(filename: str, borrowing_facts: Iterable[Tuple[str, str, f
     doc.save(filename, False)
 
 
-def _export_csv_report(filename: str, borrowing_facts: Iterable[Tuple[str, str, float]]):
+def _export_csv_report(
+        filename: str, borrowing_facts: Iterable[Tuple[str, str, float]]):
     scols = set(gfn for bfn, gfn, bo in borrowing_facts)
     cols = sorted(scols)
     rows = sorted(set(bfn for bfn, gfn, bo in borrowing_facts))
@@ -98,16 +99,17 @@ def _export_csv_report(filename: str, borrowing_facts: Iterable[Tuple[str, str, 
     data = [[0.0] * len(cols) for r in rows]  # to make different list
 
     for bfn, gfn, bo in borrowing_facts:
-        r = rr[bfn]
-        c = rc[gfn]
-        data[r][c] = bo
+        dr = rr[bfn]
+        dc = rc[gfn]
+        data[dr][dc] = bo
 
     with open(filename, 'w+', encoding='utf-8', newline='') as csvf:
         cw = csv.writer(csvf, dialect='unix', delimiter='\t')
-        cw.writerow(["Borrower \ Source"] + cols)
+        cw.writerow([r"Borrower \ Source"] + cols)
 
         for r, rd in zip(rows, data):
-            cw.writerow([r] + rd)
+            row: List[Union[str, float]] = [r] + rd
+            cw.writerow(row)
 
 
 if __name__ == '__main__':

@@ -9,33 +9,42 @@ import argparse
 import multiprocessing
 import multiprocessing.dummy
 import subprocess
-import tzlocal
 from typing import List, Iterable, Tuple, Optional
 
+import tzlocal
 import tqdm
 
 from sourcedrop import PythonSource
 import report_export
 
+
 def get_file_mdate(file_name: str)-> datetime.datetime:
     try:
+        abs_file_name = os.path.abspath(file_name)
         output: subprocess.Popen = subprocess.Popen(
-            ['git', 'log', '--date=iso', '--format="%ad"', '--', file_name],
-            stdout=subprocess.PIPE
+            ['git', 'log', '--date=iso', '--format="%ad"', '--', abs_file_name],
+            stdout=subprocess.PIPE,
+            cwd=os.path.split(abs_file_name)[0]
         )
         output.wait(5.0)
+
         if output.returncode != 0:
             raise UserWarning("Git return code was %d" % (output.returncode))
-        stdout: bytes = output.communicate()[0]
-        output: Iterable[str] = stdout.decode(locale.getpreferredencoding(False)).split('\n')
-        output = [l.replace('"','').replace("'", '').strip() for l in output]
-        output = [l for l in output if len(l)]
-        firstdate: str = output[-1]
-        if firstdate.endswith('00'):
-            firstdate = firstdate[:-2] + ':00'
-        return datetime.datetime.fromisoformat(firstdate)
+
+        bstdout: bytes = output.communicate()[0]
+        stdout: Iterable[str] = bstdout.decode(
+            locale.getpreferredencoding(False)).split('\n')
+        stdout = [l.replace('"', '').replace("'", '').strip() for l in stdout]
+        stdout = [l for l in stdout if len(l)]
+
+        last_date: str = stdout[0]
+        if last_date.endswith('00'):
+            last_date = last_date[:-2] + ':00'
+
+        return datetime.datetime.fromisoformat(last_date)
     except Exception as e:
-        print("Error <<%s>> when getting git times for %s" % (str(e), file_name), file=sys.stderr)
+        print("Error <<%s>> when getting git times for %s" %
+              (str(e), file_name), file=sys.stderr)
         return datetime.datetime.utcfromtimestamp(os.path.getmtime(file_name))
 
 
@@ -183,7 +192,8 @@ def compare_srcs(
     return bad.id_repr, good.id_repr, borrowed_fraction
 
 
-def compare_srcs_initializer(minimal_match_length: int, depersonate_check: bool):
+def compare_srcs_initializer(
+        minimal_match_length: int, depersonate_check: bool):
     global _borrow_threshold, _minimal_match_length, _depersonate_check
     _minimal_match_length = minimal_match_length
     _depersonate_check = depersonate_check
