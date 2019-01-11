@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import dataclasses
+from enum import Enum
 import itertools
 import json
 import sys
@@ -11,6 +12,15 @@ import tokenize
 import keyword
 
 import chardet
+
+
+class LexMode(Enum):
+    EXACT_MODE = 'exact'
+    TOKENIZE_MODE = 'tokenize'
+    IDENTIFIER_STRIP_MODE = 'id-strip'
+
+    def __str__(self):
+        return self.value
 
 
 @dataclasses.dataclass()
@@ -26,7 +36,7 @@ class PythonSource:
     """
     file_name: str
     file_index: Optional[int]
-    raw_lexemes: List[str]
+    total_lexemes: int
     fingerprint_lexemes: List[str]
 
     @property
@@ -37,38 +47,36 @@ class PythonSource:
                 self.file_index) if self.file_index is not None else self.file_name
 
     def borrowed_fraction_from(
-            self, other: 'PythonSource', depersonate: bool, minimal_match_length: int
+            self, other: 'PythonSource', minimal_match_length: int
     )-> Optional[float]:
         """Tells, what fraction of current source was (if it was)
         likely borrowed from another one"""
         if self is other or self.id_repr == other.id_repr:
             return None
+        elif self.fingerprint_lexemes == other.fingerprint_lexemes:
+            return 1.0
 
-        self_lex, other_lex = (
-            self.fingerprint_lexemes, other.fingerprint_lexemes
-        ) if depersonate else (
-            self.raw_lexemes, other.raw_lexemes
-        )
         sm = difflib.SequenceMatcher(
             None,
-            self_lex,
-            other_lex,
+            self.fingerprint_lexemes,
+            other.fingerprint_lexemes,
             False
         )  # type: ignore
 
         common_size = sum(b.size for b in sm.get_matching_blocks()
                           if b.size >= minimal_match_length)
 
-        return float(common_size / len(self_lex))
+        return float(common_size / len(self.fingerprint_lexemes))
 
     @staticmethod
-    def _lex_python_source(source_code: str) -> Tuple[List, List]:
-        """Get sequence of lexemes (depersonated and raw) from python source"""
-        raw_lexemes = []
+    def _lex_python_source(
+            source_code: str, lex_mode: LexMode) -> Tuple[List[str], int]:
+        """Get sequence of lexemes (depersonated or raw) from python source"""
+
         fingerprint_lexemes = []
 
-        tokens = tokenize.tokenize(
-            BytesIO(source_code.encode('utf-8')).readline)
+        tokens = list(tokenize.tokenize(
+            BytesIO(source_code.encode('utf-8')).readline))
 
         for ttype, tvalue, tstart, tend, tline in tokens:
             if ttype in (
@@ -79,26 +87,32 @@ class PythonSource:
 
             ts = tvalue.strip()
 
-            raw_lexemes.append(ts)
-
-            if ttype == tokenize.NAME:
-                if keyword.iskeyword(ts):
-                    fingerprint_lexemes.append(ts)
-                else:
-                    fingerprint_lexemes.append('&id')
-            elif ttype == tokenize.STRING:
-                fingerprint_lexemes.append('&""')
-            elif ttype == tokenize.NUMBER:
-                fingerprint_lexemes.append('&num')
-            elif ttype == tokenize.COMMENT:
-                fingerprint_lexemes.append('&#')
-            else:
+            if lex_mode == LexMode.TOKENIZE_MODE:
                 fingerprint_lexemes.append(ts)
+            elif lex_mode == LexMode.IDENTIFIER_STRIP_MODE:
+                if ttype == tokenize.NAME:
+                    if keyword.iskeyword(ts):
+                        fingerprint_lexemes.append(ts)
+                    else:
+                        fingerprint_lexemes.append('&id')
+                elif ttype == tokenize.STRING:
+                    fingerprint_lexemes.append('&""')
+                elif ttype == tokenize.NUMBER:
+                    fingerprint_lexemes.append('&num')
+                elif ttype == tokenize.COMMENT:
+                    fingerprint_lexemes.append('&#')
+                else:
+                    fingerprint_lexemes.append(ts)
+            else:
+                raise ValueError(
+                    "Lex mode %s not implemented for Python sources" %
+                    (lex_mode.value))
 
-        return raw_lexemes, fingerprint_lexemes
+        return fingerprint_lexemes, len(tokens)
 
     @staticmethod
-    def read_pythons_from_file(filename: str)-> Iterable['PythonSource']:
+    def read_pythons_from_file(
+            filename: str, lex_mode: LexMode)-> Iterable['PythonSource']:
         def read_nasty_file()-> str:
             try:
                 with open(filename, 'r', encoding='utf-8') as tf:
@@ -126,8 +140,9 @@ class PythonSource:
                                 l if not l.startswith('%') else '#<%> ' + l
                                 for l in c['source']
                             )
-                            rl, fl = PythonSource._lex_python_source(src)
-                            yield PythonSource(filename, n, rl, fl)
+                            fl, tt = PythonSource._lex_python_source(
+                                src, lex_mode)
+                            yield PythonSource(filename, n, tt, fl)
             except Exception as e:
                 print(
                     "Error reading %s" %
@@ -141,8 +156,8 @@ class PythonSource:
         else:
             try:
                 src = read_nasty_file()
-                rl, fl = PythonSource._lex_python_source(src)
-                yield PythonSource(filename, None, rl, fl)
+                fl, tt = PythonSource._lex_python_source(src, lex_mode)
+                yield PythonSource(filename, None, tt, fl)
             except Exception as e:
                 print(
                     "Error reading %s" %

@@ -14,7 +14,7 @@ from typing import List, Iterable, Tuple, Optional
 import tzlocal
 import tqdm
 
-from sourcedrop import PythonSource
+from sourcedrop import LexMode, PythonSource
 import report_export
 
 
@@ -73,10 +73,11 @@ def globs(path: str, min_date: Optional[datetime.datetime])-> List[str]:
 
 
 def get_python_sources(
-        filenames: Iterable[str], min_lexemes: int)-> Iterable[PythonSource]:
+        filenames: Iterable[str], min_lexemes: int, check_method: LexMode
+)-> Iterable[PythonSource]:
     for fn in filenames:
-        for ps in PythonSource.read_pythons_from_file(fn):
-            if len(ps.raw_lexemes) >= min_lexemes:
+        for ps in PythonSource.read_pythons_from_file(fn, check_method):
+            if ps.total_lexemes >= min_lexemes:
                 yield ps
 
 
@@ -116,9 +117,10 @@ def get_args()-> argparse.Namespace:
     apr.add_argument(
         "-cm",
         "--check-method",
+        type=LexMode,
         help="Check all lexemes or only structure (keywords, etc.) ones",
-        choices=['all', 'structure'],
-        default='all'
+        default=LexMode.TOKENIZE_MODE.value,
+        choices=list(LexMode)
     )
     apr.add_argument(
         "-ml",
@@ -179,31 +181,29 @@ def _is_same_guy(bad_filename: str, good_filename: str,
 
 
 _minimal_match_length: int = 0
-_depersonate_check: bool = False
 
 
 def compare_srcs(
         settings_bad_good: Tuple[PythonSource, PythonSource]
 )-> Tuple[str, str, Optional[float]]:
-    global _minimal_match_length, _depersonate_check
+    global _minimal_match_length
     bad, good = settings_bad_good
     borrowed_fraction = bad.borrowed_fraction_from(
-        good, _depersonate_check, _minimal_match_length)
+        good, _minimal_match_length)
     return bad.id_repr, good.id_repr, borrowed_fraction
 
 
 def compare_srcs_initializer(
-        minimal_match_length: int, depersonate_check: bool):
-    global _borrow_threshold, _minimal_match_length, _depersonate_check
+        minimal_match_length: int):
+    global _minimal_match_length
     _minimal_match_length = minimal_match_length
-    _depersonate_check = depersonate_check
 
 
 def workflow():
     args = get_args()
 
-    borrow_threshold: float = args.borrow_threshold  # type: ignore
-    depersonate_check: bool = args.check_method != 'all'  # type: ignore
+    borrow_threshold: float = args.borrow_threshold    # type: ignore
+    check_method: LexMode = args.check_method          # type: ignore
     minimal_match_length: int = args.min_match_length  # type: ignore
 
     gs = globs(args.good_guys, None)  # type: ignore
@@ -211,8 +211,8 @@ def workflow():
     ml = args.min_length
 
     print("Looking for them...")
-    good_sources = list(get_python_sources(gs, ml))
-    bad_sources = list(get_python_sources(bs, ml))
+    good_sources = list(get_python_sources(gs, ml, check_method))
+    bad_sources = list(get_python_sources(bs, ml, check_method))
 
     tasks: List[Tuple[PythonSource, PythonSource]] = []
 
@@ -233,12 +233,12 @@ def workflow():
         pool = multiprocessing.dummy.Pool(
             1,
             initializer=compare_srcs_initializer,
-            initargs=(minimal_match_length, depersonate_check)
+            initargs=[minimal_match_length]
         )
     else:
         pool = multiprocessing.Pool(
             initializer=compare_srcs_initializer,
-            initargs=(minimal_match_length, depersonate_check)
+            initargs=[minimal_match_length]
         )
 
     results = pool.imap_unordered(compare_srcs, tasks)
