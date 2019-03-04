@@ -7,10 +7,13 @@ import asyncio
 
 @asyncio.coroutine
 def c1():
-    for n in range(3):
-        yield from asyncio.sleep(0.5)
-        print("c1-%d" % (n))
-    print("c2-3")
+    print("c1-0")
+    yield from asyncio.sleep(0.5)
+    print("c1-1")
+    yield from asyncio.sleep(0.5)
+    print("c1-2")
+    yield from asyncio.sleep(0.5)
+    print("c1-3")
 
 
 @asyncio.coroutine
@@ -20,16 +23,19 @@ def c2():
         print("c2-%d" % (n))
     print("c2-3")
 
-# OOPS! https://stackoverflow.com/a/49377261/539470
-# @asyncio.coroutine
-# def test2coroutines1():
-#     yield from asyncio.wait([])
+
+async def c3():
+    for n in range(3):
+        await asyncio.sleep(0.5)
+        print("c3-%d" % (n))
+    print("c3-3")
 
 @asyncio.coroutine
 def test2coroutines2():
     yield from asyncio.wait([
         c1(),
-        c2()
+        c2(),
+        c3()
     ])
 
 
