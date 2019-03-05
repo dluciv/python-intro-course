@@ -24,9 +24,9 @@ def root():
 @app.route('/name', methods = ['GET', 'POST'])
 def hello_name():
     if request.method == 'GET':
-        name_param=request.args['name']
+        name_param=request.args.get('name')
     elif request.method == 'POST':
-        name_param=request.form['name']
+        name_param=request.form.get('name')
 
     if name_param==None:
         name_param="Anonymous"
