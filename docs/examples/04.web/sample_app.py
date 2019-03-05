@@ -6,7 +6,7 @@
 import flask
 from flask import Flask, request
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="", template_folder="templates")
 
 @app.route('/hello/<string:text>')
 @app.route('/hello')
@@ -37,4 +37,5 @@ def hello_name():
     )
 
 if __name__ == '__main__':
+   # print(app.config['STATIC_FOLDER'])
    app.run(debug = True)
