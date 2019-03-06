@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 # A very simple Flask Hello World app for you to get started with...
@@ -29,13 +29,13 @@ def hello_name():
         name_param=request.form.get('name')
 
     if name_param==None:
-        name_param="Anonymous"
+        name_param="Анонимус"
 
     return flask.render_template(
         'name.html',
-        name=name_param
+        name=name_param,
+        method=request.method
     )
 
 if __name__ == '__main__':
-   # print(app.config['STATIC_FOLDER'])
    app.run(debug = True)
