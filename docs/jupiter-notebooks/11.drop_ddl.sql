@@ -1,5 +1,5 @@
-drop table students;
-drop table programs;
-drop table courses;
-drop table programs_courses;
-drop table marks;
+drop table if exists students;
+drop table if exists programs;
+drop table if exists courses;
+drop table if exists programs_courses;
+drop table if exists marks;
