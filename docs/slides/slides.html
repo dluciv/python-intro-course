@@ -118,7 +118,7 @@ html.dimbg .slide-background {
 
 
 <!-- content -->
-<section id="__content__"
+<section id="__md_content__"
          data-markdown="***.md"
          data-separator="^\n= =[ =]+"
          data-separator-vertical="^\n- -[ -]+"
@@ -128,7 +128,8 @@ html.dimbg .slide-background {
 
 <script>
 var md = new URL(location.href).searchParams.get('md');
-document.getElementById('__content__').setAttribute('data-markdown', md)
+var mc = document.getElementById("__md_content__");
+mc.setAttribute('data-markdown', md);
 </script>
 <!-- content -->
 
@@ -183,7 +184,32 @@ document.getElementById('__content__').setAttribute('data-markdown', md)
 
 		<script>
 			Reveal.addEventListener( 'ready', function(event) {
-				document.title = document.getElementById('__slides-title__').innerHTML = document.getElementById('slides-title').innerHTML
+				var mcs = document.querySelectorAll('section[data-markdown-parsed="true"]');
+				for(var mc of mcs) {
+					console.log(mc);
+					try {
+						// console.log("#######################################################");
+						// console.log(mc.outerHTML);
+
+						mc.outerHTML = mc.outerHTML.
+							replace(/@pause@/g, '<div class="fragment" />').
+							replace(/-{pause}-/g, '<div class="fragment" />');
+
+						// console.log("#######################################################");
+						// console.log(mc.outerHTML);
+					} catch (e) {
+						console.log("Caught: " + e);
+					}
+				}
+
+				document.getElementById('__slides-title__').innerHTML = document.getElementById('slides-title').innerHTML;
+				try {
+					document.getElementById('__slides-author__').innerHTML = document.getElementById('slides-author').innerHTML;
+				} catch (e) {
+					// no authors --- ok, default
+				}
+
+				document.title = document.getElementById('__slides-title__').innerHTML;
 			});
 		</script>
 	</body>
