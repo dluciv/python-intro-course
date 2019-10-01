@@ -20,7 +20,7 @@
 1. Регистрируемся:
     * на GitHub, регистрируемся
     * на https://riot.im/ → https://riot.im/app/#/register (Email и телефон необязательно!)
-    * идём в чатик по ссылке https://matrix.to/#/!aEKuFMKYaEPqeoIaMj:dluciv.name
+    * идём в чатик по ссылке https://matrix.to/#/!bAcuGObdrRWdDSiBko:dluciv.name
 2. Инсталлируем и запускаем ПО:
     * перечисленное на https://edu.dluciv.name/Home/python
 
