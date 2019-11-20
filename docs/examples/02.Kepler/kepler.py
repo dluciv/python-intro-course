@@ -18,10 +18,10 @@ class Body:
 
     def __init__(self, universe: Universe, mass: float, position: vec, velocity: vec):
         # Аннотации типов по желанию, но могут помочь IDE и компилятору, когда таковые имеются
-        self.universe = universe
-        self.mass = mass
-        self.position = position
-        self.velocity = velocity
+        self.universe: Universe = universe
+        self.mass: float = mass
+        self.position: vec = position
+        self.velocity: vec = velocity
 
     def force_induced_by_other(self, other: Body) -> vec:
         """Сила, с которой другое тело действует на данное"""
@@ -46,18 +46,26 @@ class Body:
 class Universe(ABC):
     """Невнятная вселенная, основа всех миров"""
 
+    def __init__(self,
+                 G: float,  # гравитационная постоянная
+                 collision_distance: float  # всё-таки это не точки
+                 ):
+        self.G: float = G
+        self.collision_distance: float = collision_distance
+
+
     @abstractmethod
     def gravity_flow_dencity_per_1_1(self, dist: float) -> float:
         """
         Плотность потока гравитационного поля между двумя
         единичными массами на заданном расстоянии
         """
-        raise NotImplementedError()
+        pass
 
     @abstractmethod
     def model_step(self):
         """Итерация решения задачи Коши. Конечно не присуща вселенной, но тут на своём месте"""
-        raise NotImplementedError()
+        pass
 
 class UniverseWith3Bodies(Universe):
     """
@@ -71,8 +79,7 @@ class UniverseWith3Bodies(Universe):
                  collision_distance: float  # всё-таки это не точки
                  ):
         """В начале было... да, а потом тестовая вселенная с пупом мира и двумя камнями"""
-        self.G = G
-        self.collision_distance = collision_distance
+        super().__init__(G, collision_distance)
 
         self.centrum = Body(self, 500.0, vec([0.0, 0.0]), vec([0.0, 0.0]))
         self.p_1 = Body(self, 10.0, vec([50.0, 0.0]), vec([0.0, 15.0]))
@@ -81,7 +88,10 @@ class UniverseWith3Bodies(Universe):
     def gravity_flow_dencity_per_1_1(self, dist: float) -> float:
         # будем считать, что отскакивают точки друг от друга резко,
         # но стараться не допускать этого
-        return self.G / dist ** 2 if dist > self.collision_distance else -self.G / dist ** 3
+        return self.G / (
+            dist ** 2 if dist > self.collision_distance
+            else -self.G / dist ** 3
+        )
 
     def model_step(self):
         self.p_1.apply_force(self.p_1.force_induced_by_other(self.centrum))
@@ -97,17 +107,21 @@ class UniverseWithBodies(Universe):
 
     def __init__(self,
                  G: float,  # гравитационная постоянная
-                 collision_distance: float,  # всё-таки это не точки
-                 bodies: List[Body]
+                 collision_distance: float  # всё-таки это не точки
                  ):
-        super().__init__()
+        super().__init__(G, collision_distance)
+        self.bodies: List[Body] = []
+
+    def add_body(self, b: Body):
         raise NotImplementedError("Запрограммируй меня!")
 
+    @abstractmethod
     def gravity_flow_dencity_per_1_1(self, dist: float) -> float:
-        raise NotImplementedError("Запрограммируй меня!")
+        pass
 
+    @abstractmethod
     def model_step(self):
-        raise NotImplementedError("Запрограммируй меня!")
+        pass
 
 
 class UniverseWithDimensionsAndBodies(UniverseWithBodies):
@@ -118,10 +132,9 @@ class UniverseWithDimensionsAndBodies(UniverseWithBodies):
     def __init__(self,
                  dimensions: int, # сколько пространственных измерений
                  G: float,  # гравитационная постоянная
-                 collision_distance: float,  # всё-таки это не точки
-                 bodies: List[Body]
+                 collision_distance: float  # всё-таки это не точки
                  ):
-        super().__init__(G, collision_distance, bodies)
+        super().__init__(G, collision_distance)
         self.dimensions = dimensions
 
     def gravity_flow_dencity_per_1_1(self, dist: float) -> float:
