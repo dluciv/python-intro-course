@@ -6,7 +6,7 @@ import asyncio
 import PyQt5.QtWidgets as qw
 import asyncqt
 from asyncqt import asyncSlot
-import aiofile  # https://pypi.org/project/aiofile/ AIOFile
+import aiofiles  # https://pypi.org/project/aiofiles/
 import aiohttp
 
 
@@ -62,8 +62,8 @@ class MainWindow(qw.QWidget):
 
     @asyncSlot(bool)
     async def performLongFileOperation(self, evt):
-        with aiofile.AIOFile("c:\\tmp\\NTFSUndelete_setup.exe", 'rb') as f:
-            bts = f.read()
+        async with aiofiles.open("/etc/fstab", 'rb') as f:  # put your file here
+            bts = await f.read()
             print("Got", len(bts), "bytes")
 
 
@@ -80,6 +80,12 @@ if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
     loop = asyncqt.QEventLoop(app)
     asyncio.set_event_loop(loop)
+
+    # Workaround
+    if sys.version_info.major == 3 and sys.version_info.minor == 8:
+        asyncio.events._set_running_loop(loop)
+    # See https://github.com/gmarull/asyncqt/issues/12
+    # and https://github.com/gmarull/asyncqt/pull/13/commits/5a2f75b85e296a6237a2be386ddd5b15ff93f1b4#diff-1b8f6c75e83edf3ce1420e957c14a451R272
 
     w = MainWindow()
     w.show()
