@@ -6,7 +6,6 @@ import PyQt5.QtWidgets as qw
 import time
 
 import requests
-from PyQt5.QtCore import pyqtSlot
 
 urls = [
     "https://google.com/",
@@ -54,7 +53,6 @@ class MainWindow(qw.QWidget):
             time.sleep(1)
         print("Done.")
 
-    @pyqtSlot(bool)
     def performLongFileOperation(self, evt):
         with open("a:\\...", 'rb') as f:
             bts = f.read()
