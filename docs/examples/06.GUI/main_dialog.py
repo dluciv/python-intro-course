@@ -18,6 +18,10 @@ class MainDialog(*uic.loadUiType(os.path.join(_scriptdir, 'ui', 'main_dialog.ui'
 
     def bindEvents(self):
         self.okButton.clicked.connect(self.close)
+        self.helloButton.clicked.connect(self.hello)
+    
+    def hello(self):
+        self.helloLabel.setText("Привет")
 
 
 if __name__ == '__main__':
