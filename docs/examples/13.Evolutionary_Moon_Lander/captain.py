@@ -14,8 +14,9 @@ class BraveCaptain(model.Captain):
 
 
 class CarefulCaptain(model.Captain):
-    def __init__(self):
+    def __init__(self, verbose = True):
         self.count = 0
+        self.verbose = verbose
 
     def control(self, surface: model.Surface, spaceship: model.Spaceship, time: float):
         left = spaceship.velocity[0] > spaceship.maxlandingvelocity / 2.0
@@ -25,7 +26,7 @@ class CarefulCaptain(model.Captain):
             (model.Spaceship.Thrust.LEFT if left else model.Spaceship.Thrust.NOPE) | \
             (model.Spaceship.Thrust.UP if up else model.Spaceship.Thrust.NOPE)
 
-        if self.count % 1000 == 0:
+        if self.verbose and self.count % 1000 == 0:
             print(time, spaceship.thrust, spaceship.mass)
         self.count += 1
 

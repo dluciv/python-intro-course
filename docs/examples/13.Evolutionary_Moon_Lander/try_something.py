@@ -17,12 +17,12 @@ def trackship(m: model.Model) -> List[vec]:
     return poss
 
 if __name__ == '__main__':
-    sur = model.Surface("surface_heights.csv", 2000.0)
+    sur = model.Surface("surface_heights.csv", 1500.0)
 
     m = model.Model(
         sur,
-        model.Spaceship(1000.0, vec([25.0, 0.0]), vec([0.0, 200.0])),
-        captain.CarefulCaptain()
+        model.Spaceship(1000.0, vec([20.0, 0.0]), vec([0.0, 200.0])),
+        captain.CarefulCaptain(verbose=False)
     )
 
     xs = np.arange(0.0, sur.get_width())

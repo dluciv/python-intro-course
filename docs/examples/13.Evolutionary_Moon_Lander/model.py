@@ -90,17 +90,17 @@ class Captain(ABC):
 
 
 class Model:
-    def __init__(self, sf: Surface, ss: Spaceship, cap: Captain, delta_t = 0.01):
-        self.delta_t: float = delta_t
+    def __init__(self, sf: Surface, ss: Spaceship, cap: Captain, default_delta_t = 0.01):
+        self.default_delta_t: float = default_delta_t
         self.surface: Surface = sf
         self.spaceship: Spaceship = ss
         self.cap = cap
         self.time = 0.0
 
-    def step(self) -> bool:
+    def step_delta_t(self, delta_t):
         self.cap.control(self.surface, self.spaceship, self.time)
-        self.spaceship.advance(self.delta_t)
-        self.time += self.delta_t
+        self.spaceship.advance(delta_t)
+        self.time += delta_t
         [sx, sy] = self.spaceship.position
         sv = norm(self.spaceship.velocity)
         if self.surface.get_height(sx) >= sy:
@@ -111,8 +111,20 @@ class Model:
             else:
                 print("Crash...")
                 self.spaceship.crash()
-                
+
+    def step(self) -> bool:
+        self.step_delta_t(self.default_delta_t)
         return self.spaceship.navigates
+
+    def run_to(self, up_to_time: float = None) -> bool:
+        if up_to_time is None:
+            up_to_time = self.time + self.default_delta_t
+
+        while self.time < up_to_time and self.spaceship.navigates:
+            self.step_delta_t(self.default_delta_t)
+
+        return self.spaceship.navigates
+
 
 if __name__ == '__main__':
     raise NotImplementedError("This file is not supposed to be launched as a program")
