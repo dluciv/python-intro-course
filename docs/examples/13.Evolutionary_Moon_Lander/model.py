@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-from enum import Enum, IntFlag
+from typing import Optional
+from enum import IntFlag
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -47,6 +48,12 @@ class Spaceship:
         self.dry_mass: float = mass / 2.0
         self.fuel_mass: float = mass / 2.0
 
+    def drain_fuel(self, amount: float):
+        """
+        Drain fuel to decrease weight
+        """
+        self.fuel_mass = max(self.fuel_mass - amount, 0.0)
+
     @property
     def mass(self):
         return self.dry_mass + self.fuel_mass
@@ -81,11 +88,12 @@ class Spaceship:
         self.ok = False
 
 class Captain(ABC):
-    def __init__(self, ):
+    def __init__(self):
+        self.model: Optional[Model] = None
         pass
 
     @abstractmethod
-    def control(self, surface: Surface, spaceship: Spaceship, time: float):
+    def control(self):
         pass
 
 
@@ -95,10 +103,11 @@ class Model:
         self.surface: Surface = sf
         self.spaceship: Spaceship = ss
         self.cap = cap
+        cap.model = self
         self.time = 0.0
 
     def step_delta_t(self, delta_t):
-        self.cap.control(self.surface, self.spaceship, self.time)
+        self.cap.control()
         self.spaceship.advance(delta_t)
         self.time += delta_t
         [sx, sy] = self.spaceship.position

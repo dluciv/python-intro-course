@@ -45,24 +45,14 @@ def main_cycle_body()-> bool:
         return False
     elif event.type == TIMEREVENT:
         model_and_repaint()
-    elif False: # event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-        delta = 0.05 if event.type == pygame.KEYDOWN else -0.05
+    elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+        print(f"Keyboard event: {event.type}, key: {event.key}")
         if event.key == pygame.K_UP:
-            diri_axy -= delta * 250j
-        elif event.key == pygame.K_DOWN:
-            diri_axy += delta * 250j
-        elif event.key == pygame.K_LEFT:
-            diri_axy -= delta * 250
+            print("This captain does not listen to your instructions")
         elif event.key == pygame.K_RIGHT:
-            diri_axy += delta * 250
-        elif event.key == pygame.K_BACKSPACE:
-            diri_decelerate += delta
-        elif event.key == pygame.K_SPACE and event.type == pygame.KEYDOWN:
-            bo = Bomb(diri)
-            gamesprites.add(bo)
-            bombs.add(bo)
-        elif event.key == pygame.K_s and event.type == pygame.KEYDOWN:
-            diri.sound.fadeout(5000)
+            print("This captain does not listen to your instructions")
+        elif event.key == pygame.K_LEFT:
+            print("This captain does not listen to your instructions")
     else:
         pass
         #print(event)
@@ -94,6 +84,7 @@ def main():
 
     sur = model.Surface("surface_heights.csv", 1500.0)
     ship = model.Spaceship(1000.0, vec([20.0, 0.0]), vec([0.0, 200.0]))
+    # cap = captain.BraveCaptain()
     cap = captain.CarefulCaptain(verbose=False)
     game_model = model.Model(sur, ship, cap)
 
