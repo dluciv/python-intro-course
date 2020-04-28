@@ -4,9 +4,12 @@ from __future__ import annotations
 from numpy import array as vec
 import pygame
 import pygame.sprite as sprite
-
+import os
 import model
 import captain
+
+_scriptdir = os.path.dirname(os.path.realpath(__file__))
+
 
 class TextSprite(sprite.Sprite):
     def __init__(self, ship: model.Spaceship):
@@ -65,6 +68,10 @@ def start_game():
     fps = clock.get_fps()
     fps = 30
     pygame.time.set_timer(TIMEREVENT, int(1000 / fps))
+
+    bg = pygame.image.load(os.path.join(_scriptdir, 'images', "background.jpg"))
+    screen.fill((0, 0, 0))
+    screen.blit(bg, bg.get_rect())
 
     for x in range(0, 1500):
         pygame.draw.line(screen, (160, 160, 160), (x, 500), (x, 500 - sur.get_height(x)))
