@@ -66,13 +66,13 @@ class Spaceship:
         dm = 0.0
 
         if self.fuel_mass > 0.0:
-            if Spaceship.Thrust.RIGHT in self.thrust:
+            if Spaceship.Thrust.RIGHT & self.thrust:
                 thrust_vec += [0.25, 0.0]
                 dm += 0.25
-            if Spaceship.Thrust.LEFT in self.thrust:
+            if Spaceship.Thrust.LEFT & self.thrust:
                 thrust_vec += [-0.25, 0.0]
                 dm += 0.25
-            if Spaceship.Thrust.UP in self.thrust:
+            if Spaceship.Thrust.UP & self.thrust:
                 thrust_vec += [0.0, 1.0]
                 dm += 1.0
 
@@ -95,6 +95,18 @@ class Captain(ABC):
     @abstractmethod
     def control(self):
         pass
+
+
+class ResponsiveCaptin(Captain):
+    def __init__(self):
+        super().__init__()
+        self.controlled_from_outside = False
+
+    def instruct(self, what_engine: Spaceship.Thrust, turn_on: bool):
+        self.controlled_from_outside = True
+    
+    def free(self):
+        self.controlled_from_outside = False
 
 
 class Model:

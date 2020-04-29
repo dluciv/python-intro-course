@@ -19,12 +19,15 @@ class BraveCaptain(model.Captain):
             spaceship.thrust = model.Spaceship.Thrust.NOPE
 
 
-class CarefulCaptain(model.Captain):
-    def __init__(self, verbose = True):
+class CarefulCaptain(model.ResponsiveCaptin):
+    def __init__(self):
+        super().__init__()
         self.count = 0
-        self.verbose = verbose
+        self.verbose = False
 
     def control(self):
+        if self.controlled_from_outside:
+            return
         spaceship = self.model.spaceship
         time = self.model.time
         left = spaceship.velocity[0] > spaceship.maxlandingvelocity / 2.0 ** 0.5
@@ -38,3 +41,13 @@ class CarefulCaptain(model.Captain):
             print(time, spaceship.thrust, spaceship.mass)
         self.count += 1
 
+    def instruct(self, what_engine: model.Spaceship.Thrust, turn_on: bool):
+        if not self.controlled_from_outside:
+            self.model.spaceship.thrust = model.Spaceship.Thrust.NOPE
+            print("Captain turns thrust off and passes controls to you")
+        super().instruct(what_engine, turn_on)
+
+        if turn_on:
+            self.model.spaceship.thrust |=  what_engine
+        else:
+            self.model.spaceship.thrust &= ~what_engine

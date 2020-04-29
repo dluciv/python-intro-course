@@ -19,7 +19,10 @@ class TextSprite(pygame.sprite.Sprite):
 
     def update(self, dt):
         super().update(dt)
-        self.image = self.font.render(f"{self.ship.mass:03.0f}", True, (255,255,0))
+        f = f"{self.ship.fuel_mass:03.0f}"
+        vx = f"{self.ship.velocity[0]:0.2f}"
+        vy = f"{self.ship.velocity[1]:0.2f}"
+        self.image = self.font.render(f"{f} [{vx},{vy}]", True, (255,255,0))
         ir: pygame.Rect = self.image.get_rect()
         self.rect = ir.move(
             int(self.ship.position[0]) - ir.width // 2,
@@ -44,6 +47,14 @@ def model_and_repaint():
     pygame.display.update(rects)
 
 
+_key_to_thrust = {
+    pygame.K_UP: model.Spaceship.Thrust.UP,
+    pygame.K_w: model.Spaceship.Thrust.UP,
+    pygame.K_LEFT: model.Spaceship.Thrust.LEFT,
+    pygame.K_a: model.Spaceship.Thrust.LEFT,
+    pygame.K_RIGHT: model.Spaceship.Thrust.RIGHT,
+    pygame.K_d: model.Spaceship.Thrust.RIGHT
+}
 
 def main_cycle_body()-> bool:
     event = pygame.event.wait()
@@ -53,12 +64,12 @@ def main_cycle_body()-> bool:
         model_and_repaint()
     elif event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
         print(f"Keyboard event: {event.type}, key: {event.key}")
-        if event.key == pygame.K_UP:
-            print("This captain does not listen to your instructions")
-        elif event.key == pygame.K_RIGHT:
-            print("This captain does not listen to your instructions")
-        elif event.key == pygame.K_LEFT:
-            print("This captain does not listen to your instructions")
+        ktt = _key_to_thrust.get(event.key)
+        if ktt:
+            cap.instruct(ktt, event.type == pygame.KEYDOWN)
+        else:
+            print("Giving controls back to cap!")
+            cap.free()
     else:
         pass
         #print(event)
@@ -66,7 +77,7 @@ def main_cycle_body()-> bool:
 
 
 def start_game():
-    global clock, screen, clear_screen, relief
+    global screen, clear_screen, relief
 
     # fps = clock.get_fps()  # how to get system FPS?..
     fps = 30
@@ -92,23 +103,22 @@ def start_game():
 
 
 def main():
-    global clock, window, screen, renderups, ship_sprite
+    global window, screen, renderups, ship_sprite
 
     global relief, game_model, cap, ship
 
     relief = model.Relief("surface_heights.csv")
     ship = model.Spaceship(1000.0, vec([20.0, 0.0]), vec([0.0, 200.0]))
     # cap = captain.BraveCaptain()
-    cap = captain.CarefulCaptain(verbose=False)
+    cap = captain.CarefulCaptain()
     game_model = model.Model(relief, ship, cap)
 
     pygame.init()
-    pygame.mixer.init()
+    # pygame.mixer.init()
     pygame.font.init()
 
     ship_sprite = TextSprite(ship)
     renderups = pygame.sprite.RenderUpdates(ship_sprite)
-    clock = pygame.time.Clock()
     window = pygame.display.set_mode((1500, 500), 0, 32)
     pygame.display.set_caption("Let's land")
     screen = pygame.display.get_surface()
