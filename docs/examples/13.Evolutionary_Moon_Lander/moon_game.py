@@ -79,7 +79,6 @@ def start_game():
     pygame.display.update(pygame.Rect(0, 0, 1500, 500))
     clear_screen = screen.copy()
 
-
     while main_cycle_body():
         pass
 

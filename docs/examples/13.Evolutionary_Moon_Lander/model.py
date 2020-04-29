@@ -14,10 +14,9 @@ class Surface:
     def __init__(self, csv_filename: str, surface_length: float):
         self._surface_length = surface_length
         with open(csv_filename) as cfn:
-            height_data = [float(h) for [h] in csv.reader(cfn)]
-            step = surface_length / (len(height_data) - 1)
-            xs = np.arange(0.0, surface_length + step, step)
-            self._height = interpolate.interp1d(xs, height_data)
+            height_data = [(float(x), float(h)) for [x, h] in csv.reader(cfn)]
+            xs, hs = tuple(zip(*height_data))
+            self._height = interpolate.interp1d(xs, hs)
 
     def get_width(self):
         return self._surface_length

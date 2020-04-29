@@ -22,8 +22,8 @@ if __name__ == '__main__':
     m = model.Model(
         sur,
         model.Spaceship(1000.0, vec([20.0, 0.0]), vec([0.0, 200.0])),
-        # captain.CarefulCaptain(verbose=False)
-        captain.BraveCaptain()
+        captain.CarefulCaptain(verbose=False)
+        # captain.BraveCaptain()
     )
 
     xs = np.arange(0.0, sur.get_width())
