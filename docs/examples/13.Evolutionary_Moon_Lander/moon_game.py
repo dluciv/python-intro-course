@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from numpy import array as vec
 import pygame
-import pygame.sprite as sprite
 import os
 import model
 import captain
@@ -11,7 +10,7 @@ import captain
 _scriptdir = os.path.dirname(os.path.realpath(__file__))
 
 
-class TextSprite(sprite.Sprite):
+class TextSprite(pygame.sprite.Sprite):
     def __init__(self, ship: model.Spaceship):
         super().__init__()
         self.font = pygame.font.Font(pygame.font.get_default_font(), 16)
@@ -108,7 +107,7 @@ def main():
     pygame.font.init()
 
     ship_sprite = TextSprite(ship)
-    renderups = sprite.RenderUpdates(ship_sprite)
+    renderups = pygame.sprite.RenderUpdates(ship_sprite)
     clock = pygame.time.Clock()
     window = pygame.display.set_mode((1500, 500), 0, 32)
     pygame.display.set_caption("Let's land")
