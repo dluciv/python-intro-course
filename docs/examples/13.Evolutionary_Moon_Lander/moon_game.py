@@ -21,14 +21,18 @@ class TextSprite(sprite.Sprite):
     def update(self, dt):
         super().update(dt)
         self.image = self.font.render(f"{self.ship.mass:03.0f}", True, (255,255,0))
-        self.rect = self.image.get_rect().move(self.ship.position[0], 500 - self.ship.position[1])
+        ir: pygame.Rect = self.image.get_rect()
+        self.rect = ir.move(
+            int(self.ship.position[0]) - ir.width // 2,
+            500 - int(self.ship.position[1]) - ir.height // 2
+        )
 
 
 TIMEREVENT = pygame.USEREVENT + 1
 
 def model_and_repaint():
     global screen, renderups, ship_sprite, clear_screen
-    global sur, game_model, cap, ship
+    global relief, game_model, cap, ship
     ms = pygame.time.get_ticks()
     t = ms / 1000.0
     game_model.run_to(t)
@@ -63,9 +67,9 @@ def main_cycle_body()-> bool:
 
 
 def start_game():
-    global clock, screen, clear_screen, sur
+    global clock, screen, clear_screen, relief
 
-    fps = clock.get_fps()
+    # fps = clock.get_fps()  # how to get system FPS?..
     fps = 30
     pygame.time.set_timer(TIMEREVENT, int(1000 / fps))
 
@@ -74,7 +78,12 @@ def start_game():
     screen.blit(bg, bg.get_rect())
 
     for x in range(0, 1500):
-        pygame.draw.line(screen, (160, 160, 160), (x, 500), (x, 500 - sur.get_height(x)))
+        pygame.draw.line(
+            screen,
+            (160, 160, 160),
+            (round(x), 500),
+            (round(x), 500 - round(relief.get_height(x)))
+        )
 
     pygame.display.update(pygame.Rect(0, 0, 1500, 500))
     clear_screen = screen.copy()
@@ -86,13 +95,13 @@ def start_game():
 def main():
     global clock, window, screen, renderups, ship_sprite
 
-    global sur, game_model, cap, ship
+    global relief, game_model, cap, ship
 
-    sur = model.Surface("surface_heights.csv", 1500.0)
+    relief = model.Relief("surface_heights.csv")
     ship = model.Spaceship(1000.0, vec([20.0, 0.0]), vec([0.0, 200.0]))
     # cap = captain.BraveCaptain()
     cap = captain.CarefulCaptain(verbose=False)
-    game_model = model.Model(sur, ship, cap)
+    game_model = model.Model(relief, ship, cap)
 
     pygame.init()
     pygame.mixer.init()

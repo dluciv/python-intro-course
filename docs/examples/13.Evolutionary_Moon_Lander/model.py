@@ -10,19 +10,20 @@ from numpy.linalg import norm
 import csv
 from scipy import interpolate
 
-class Surface:
-    def __init__(self, csv_filename: str, surface_length: float):
-        self._surface_length = surface_length
+
+class Relief:
+    def __init__(self, csv_filename: str):
         with open(csv_filename) as cfn:
             height_data = [(float(x), float(h)) for [x, h] in csv.reader(cfn)]
             xs, hs = tuple(zip(*height_data))
+            self._relief_length = max(xs)
             self._height = interpolate.interp1d(xs, hs)
 
     def get_width(self):
-        return self._surface_length
+        return self._relief_length
 
     def get_height(self, x):
-        return self._height(x)
+        return float(self._height(x))
 
 
 class Spaceship:
@@ -97,9 +98,9 @@ class Captain(ABC):
 
 
 class Model:
-    def __init__(self, sf: Surface, ss: Spaceship, cap: Captain, default_delta_t = 0.01):
+    def __init__(self, rl: Relief, ss: Spaceship, cap: Captain, default_delta_t = 0.01):
         self.default_delta_t: float = default_delta_t
-        self.surface: Surface = sf
+        self.relief: Relief = rl
         self.spaceship: Spaceship = ss
         self.cap = cap
         cap.model = self
@@ -111,7 +112,7 @@ class Model:
         self.time += delta_t
         [sx, sy] = self.spaceship.position
         sv = norm(self.spaceship.velocity)
-        if self.surface.get_height(sx) >= sy:
+        if self.relief.get_height(sx) >= sy:
             self.spaceship.navigates = False
             if sv <= self.spaceship.maxlandingvelocity:
                 print("Landing ok!")

@@ -5,7 +5,6 @@ import model
 
 class BraveCaptain(model.Captain):
     def control(self):
-        surface = self.model.surface
         spaceship = self.model.spaceship
         time = self.model.time
 
@@ -26,7 +25,6 @@ class CarefulCaptain(model.Captain):
         self.verbose = verbose
 
     def control(self):
-        surface = self.model.surface
         spaceship = self.model.spaceship
         time = self.model.time
         left = spaceship.velocity[0] > spaceship.maxlandingvelocity / 2.0 ** 0.5

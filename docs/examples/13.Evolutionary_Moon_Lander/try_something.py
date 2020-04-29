@@ -17,17 +17,17 @@ def trackship(m: model.Model) -> List[vec]:
     return poss
 
 if __name__ == '__main__':
-    sur = model.Surface("surface_heights.csv", 1500.0)
+    rel = model.Relief("surface_heights.csv")
 
     m = model.Model(
-        sur,
+        rel,
         model.Spaceship(1000.0, vec([20.0, 0.0]), vec([0.0, 200.0])),
         captain.CarefulCaptain(verbose=False)
         # captain.BraveCaptain()
     )
 
-    xs = np.arange(0.0, sur.get_width())
-    plt.plot(xs, [sur.get_height(x) for x in xs])
+    xs = np.arange(0.0, rel.get_width())
+    plt.plot(xs, [rel.get_height(x) for x in xs])
 
     poss = trackship(m)
     tx, ty = tuple(zip(*poss))
