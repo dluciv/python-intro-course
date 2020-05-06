@@ -32,8 +32,8 @@ create table programs_courses(
 	program_id int not null,
 	
 	primary key(semester_number, course_id, program_id),
-	foreign key(course_id) references course(id),
-	foreign key(program_id) references program(id)
+	foreign key(course_id) references courses(id),
+	foreign key(program_id) references programs(id)
 );
 
 create table marks(
@@ -42,6 +42,6 @@ create table marks(
 	mark int not null,
 	
 	primary key(course_id, student_id),
-	foreign key(student_id) references student(id),
-	foreign key(course_id) references course(id)
+	foreign key(student_id) references students(id),
+	foreign key(course_id) references courses(id)
 );
