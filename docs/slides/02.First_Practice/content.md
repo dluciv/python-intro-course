@@ -18,9 +18,9 @@
 ## Инсталляция окружения, первый запуск I
 
 1. Регистрируемся:
-    * на GitHub, регистрируемся
-    * на https://riot.im/ → https://riot.im/app/#/register (Email и телефон необязательно!)
-    * идём в чатик по ссылке https://matrix.to/#/!bAcuGObdrRWdDSiBko:dluciv.name
+    * на GitHub (GitLab или BitBucket), регистрируемся
+    * на https://discord.com/
+    * идём в чатик по ссылке на https://edu.dluciv.name/Home/python
 2. Инсталлируем и запускаем ПО:
     * перечисленное на https://edu.dluciv.name/Home/python
 
