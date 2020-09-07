@@ -43,14 +43,15 @@
 - - - - - - - - - - - - -
 ## Популярность Python II
 
-Самые популярные языки программирования в 2017 г. по версии GitHub и Tiobe
+Самые популярные языки программирования по версии GitHub и Tiobe
 
 ![](images/octoverse2017.png)<!--.element: style="height:600px;" -->
 <!--.slide: style="text-align:center;" -->
 
 * По версии GitHub https://octoverse.github.com/
-* Значительный прогресс с 2016 г. https://octoverse.github.com/2016/
-* Невыраженная положительная динамика с 2002 г. https://www.tiobe.com/tiobe-index/
+* Значительный прогресс с 2016 г. [2016](https://octoverse.github.com/2016/) → [2017](https://octoverse.github.com/2017/) →
+  [2018](https://octoverse.github.com/2018/projects#languages) → [2019](https://octoverse.github.com/)
+* Невыраженная положительная динамика [по индексу TIOBE](https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D0%B4%D0%B5%D0%BA%D1%81_TIOBE) с 2002 г. https://www.tiobe.com/tiobe-index/
 
 А что это за GitHub?.. А об этом позже.<!-- .element: class="fragment" -->
 
