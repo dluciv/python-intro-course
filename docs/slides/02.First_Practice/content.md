@@ -18,7 +18,7 @@
 ## Инсталляция окружения, первый запуск I
 
 1. Регистрируемся:
-    * на GitHub (GitLab или BitBucket), регистрируемся
+    * на GitHub
     * на https://discord.com/
     * идём в чатик по ссылке на https://edu.dluciv.name/Home/python
 2. Инсталлируем и запускаем ПО:

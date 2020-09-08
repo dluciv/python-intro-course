@@ -236,7 +236,7 @@ https://wiki.python.org/moin/OrganizationsUsingPython
 * Хостинг открытых программных проектов
     * Один из «старых» известных – SourceForge
 * Идея «Social Coding»
-    * GitHub, GitLab, BitBucket
+    * GitHub, GitLab
 
 
 - - - - - - - - - - - - -
