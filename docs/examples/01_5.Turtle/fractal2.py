@@ -16,9 +16,9 @@ def draw_fractal(size):
         tl.pensize(3)
         tl.dot()
         
-
 size = 300
-# tl.tracer(0,0) 
+
+tl.delay(1)  # уменьшение задержки для скорости
 tl.penup()
 tl.color('green')
 tl.goto(0, -size * 2)
