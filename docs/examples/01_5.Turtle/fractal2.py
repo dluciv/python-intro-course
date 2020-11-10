@@ -2,6 +2,7 @@ import turtle as tl
 
 def draw_fractal(size):
     if size >= 5:
+        tl.pensize(max(size / 50, 1))
         tl.forward(size)
         tl.left(35)
         draw_fractal(size / 2)
@@ -12,12 +13,12 @@ def draw_fractal(size):
         tl.backward(size)
         tl.pendown()
     else:
-        tl.circle(2)
+        tl.pensize(3)
+        tl.dot()
         
 
 size = 300
-tl.tracer(0,0) 
-tl.pensize(2)
+# tl.tracer(0,0) 
 tl.penup()
 tl.color('green')
 tl.goto(0, -size * 2)

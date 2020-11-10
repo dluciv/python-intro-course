@@ -10,6 +10,7 @@ MODEL_T = 15
 sc = tl.Screen()    # показ экрана
 tl.hideturtle()     # спрятать черепашку по умолчанию
 tl.tracer(0,0)      # отключение автоматического обновления экрана
+tl.speed(0)
 
 class Body:
     def __init__(self, x, y, vx, vy, color = 'black'):
@@ -24,10 +25,10 @@ class Body:
         self.turtle.goto(self.x, self.y)
         self.turtle.pendown()
         self.turtle.radians() # Переключились на радианы
-        self._draw()
+        self.draw()
         self.turtle.showturtle()
 
-    def _draw(self):
+    def draw(self):
         self.turtle.setheading(math.atan2(self.vy, self.vx))
         self.turtle.goto(self.x, self.y)
 
@@ -36,8 +37,6 @@ class Body:
         self.y += self.vy * MODEL_DT
 
         self.vy -= MODEL_G * MODEL_DT
-
-        self._draw()
 
 bodies = [
     Body(-300, 0, 50.0, 50.0, 'blue'),
@@ -54,8 +53,13 @@ t0 = time.time()
 for t in np.arange(t0, t0 + MODEL_T + MODEL_DT, MODEL_DT):
     for b in bodies:
         b.advance()
-    st = t + MODEL_DT - time.time()
-    if st > 0:
-        time.sleep(st)
-        tl.update()
+    # Смотрим, сколько должно быть времени, и сколько есть, и какова разница
+    time_to_pause = t + MODEL_DT - time.time()
+    if time_to_pause > 0:  # Если у нас профицит
+        time.sleep(time_to_pause)  # ждём разницу
+        for b in bodies: # обновляем черепашек, рисующих тела
+            b.draw()
+        tl.update()  # и перерисовываем всё
+    else:  # А если дефицит, досадуем...
+        print(f"Too slow, need {-time_to_pause} sec. more")
 tl.done()
