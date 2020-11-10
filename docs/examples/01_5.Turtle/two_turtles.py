@@ -3,14 +3,13 @@ import time
 import math
 import numpy as np
 
-MODEL_DT = 0.01
+MODEL_DT = 0.05
 MODEL_G = 9.81
 MODEL_T = 15
 
-sp = tl.Screen()    # показ экрана
+sc = tl.Screen()    # показ экрана
 tl.hideturtle()     # спрятать черепашку по умолчанию
 tl.tracer(0,0)      # отключение автоматического обновления экрана
-tl.speed(0)         # отрисовка без задержки
 
 class Body:
     def __init__(self, x, y, vx, vy, color = 'black'):
@@ -24,11 +23,12 @@ class Body:
         self.turtle.penup()
         self.turtle.goto(self.x, self.y)
         self.turtle.pendown()
+        self.turtle.radians() # Переключились на радианы
         self._draw()
         self.turtle.showturtle()
 
     def _draw(self):
-        self.turtle.setheading(180.0 / math.pi * math.atan2(self.vy, self.vx))
+        self.turtle.setheading(math.atan2(self.vy, self.vx))
         self.turtle.goto(self.x, self.y)
 
     def advance(self):
@@ -39,17 +39,23 @@ class Body:
 
         self._draw()
 
-
-
 bodies = [
     Body(-300, 0, 50.0, 50.0, 'blue'),
     Body(-300, 0, 55.0, 45.0, 'red')
 ]
 
-# tl.clear()
-for t in np.arange(0, MODEL_T+MODEL_DT, MODEL_DT):
-    time.sleep(MODEL_DT)  # Неточно!
+def up():
+    bodies[0].vy += 3
+
+sc.onkey(up, "Up")
+sc.listen()
+
+t0 = time.time()
+for t in np.arange(t0, t0 + MODEL_T + MODEL_DT, MODEL_DT):
     for b in bodies:
         b.advance()
-    tl.update()
+    st = t + MODEL_DT - time.time()
+    if st > 0:
+        time.sleep(st)
+        tl.update()
 tl.done()
