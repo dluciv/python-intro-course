@@ -7,7 +7,7 @@ import sys
 import multiprocessing
 
 
-def sum_randoms(n: 'int'):
+def sum_randoms(n):
     g = random.Random()
 
     r = 0
