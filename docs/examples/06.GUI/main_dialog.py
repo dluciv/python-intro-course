@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
+
+# pip install PyQt5Designer
+
 import os
 import sys
 
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
 from PyQt5.QtCore import pyqtSignal, QThread, QTimer
 from PyQt5.QtGui import QCursor
-from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtWidgets import QAction
 
 _scriptdir = os.path.dirname(os.path.realpath(__file__))
