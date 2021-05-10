@@ -54,7 +54,7 @@ class MainWindow(qw.QWidget):
         print("Done.")
 
     def performLongFileOperation(self, evt):
-        with open("a:\\...", 'rb') as f:
+        with open("/etc/passwd", 'rb') as f:
             bts = f.read()
             print("Got", len(bts), "bytes")
 

@@ -62,7 +62,7 @@ class MainWindow(qw.QWidget):
 
     @asyncSlot(bool)
     async def performLongFileOperation(self, evt):
-        async with aiofiles.open("/etc/fstab", 'rb') as f:  # put your file here
+        async with aiofiles.open("/etc/passwd", 'rb') as f:  # put your file here
             bts = await f.read()
             print("Got", len(bts), "bytes")
 
