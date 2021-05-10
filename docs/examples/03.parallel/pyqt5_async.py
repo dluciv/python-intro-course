@@ -81,12 +81,6 @@ if __name__ == '__main__':
     loop = asyncqt.QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    # Workaround
-    if sys.version_info.major == 3 and sys.version_info.minor == 8:
-        asyncio.events._set_running_loop(loop)
-    # See https://github.com/gmarull/asyncqt/issues/12
-    # and https://github.com/gmarull/asyncqt/pull/13/commits/5a2f75b85e296a6237a2be386ddd5b15ff93f1b4#diff-1b8f6c75e83edf3ce1420e957c14a451R272
-
     w = MainWindow()
     w.show()
 

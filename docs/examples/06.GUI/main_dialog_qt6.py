@@ -5,10 +5,9 @@
 import os
 import sys
 
-from PyQt5 import QtWidgets, QtCore, QtGui, uic
-from PyQt5.QtCore import pyqtSignal, QThread, QTimer
-from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import QAction
+from PyQt6 import QtWidgets, QtCore, QtGui, uic
+from PyQt6.QtCore import pyqtSignal, QThread, QTimer
+from PyQt6.QtGui import QCursor, QAction
 
 _scriptdir = os.path.dirname(os.path.realpath(__file__))
 
@@ -21,7 +20,7 @@ class MainDialog(*uic.loadUiType(os.path.join(_scriptdir, 'ui', 'main_dialog.ui'
     def bindEvents(self):
         self.okButton.clicked.connect(self.close)
         self.helloButton.clicked.connect(self.hello)
-    
+
     def hello(self):
         self.helloLabel.setText("Привет")
 
@@ -31,4 +30,4 @@ if __name__ == '__main__':
     w = MainDialog()
     w.show()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
