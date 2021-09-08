@@ -45,12 +45,12 @@
 
 Самые популярные языки программирования по версии GitHub и Tiobe
 
-![](images/octoverse2017.png)<!--.element: style="height:600px;" -->
+![](images/octoverse-2020.png)<!--.element: style="height:600px;" -->
 <!--.slide: style="text-align:center;" -->
 
 * По версии GitHub https://octoverse.github.com/
 * Значительный прогресс с 2016 г. [2016](https://octoverse.github.com/2016/) → [2017](https://octoverse.github.com/2017/) →
-  [2018](https://octoverse.github.com/2018/projects#languages) → [2019](https://octoverse.github.com/)
+  [2018](https://octoverse.github.com/2018/projects#languages) → [2019](https://octoverse.github.com/2019/)
 * Невыраженная положительная динамика [по индексу TIOBE](https://ru.wikipedia.org/wiki/%D0%98%D0%BD%D0%B4%D0%B5%D0%BA%D1%81_TIOBE) с 2002 г. https://www.tiobe.com/tiobe-index/
 
 А что это за GitHub?.. А об этом позже.<!-- .element: class="fragment" -->
@@ -227,7 +227,7 @@ https://wiki.python.org/moin/OrganizationsUsingPython
 * Хранилище исходных кодов программных проектов
 * Исходные коды как открытых (open source), так и коммерческих проектов
 * Здесь держат исходные коды такие компании как  IBM, Microsoft, HP, JetBrains
-* Владелец ресурса – компания Microsoft (2018 г.)
+* Владелец ресурса – компания Microsoft (с 2018 г.)
 * https://github.com/
 
 ---
@@ -236,7 +236,7 @@ https://wiki.python.org/moin/OrganizationsUsingPython
 * Хостинг открытых программных проектов
     * Один из «старых» известных – SourceForge
 * Идея «Social Coding»
-    * GitHub, GitLab
+    * [GitHub](https://github.com/), [GitLab](https://gitlab.com/), [BitBucket](https://bitbucket.org/)
 
 
 - - - - - - - - - - - - -

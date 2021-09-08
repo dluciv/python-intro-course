@@ -30,8 +30,8 @@ def test2coroutines1():
 
 def test2coroutines2():
     for e1, e2 in zip(c1(), c2()):
-        print("R1:", e1, "R2:", e2)
+        ... # print("R1:", e1, "R2:", e2)
 
 if __name__=='__main__':
-    test2coroutines1()
+    # test2coroutines1()
     test2coroutines2()
