@@ -1,3 +1,0 @@
-# Для корректного отображения в логе GiTk нужно разрешить использовать для каждого файла свою кодировку (Настройки -> Поддержка кодировок в отдельных файлах):
-# http://git-scm.com/docs/gitattributes Note that due to performance considerations gitk does not use this attribute unless you manually enable per-file encodings in its options.
-*_866.py		text encoding=cp866
