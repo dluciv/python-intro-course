@@ -10,11 +10,15 @@ def get_stud_info
   YAML.load_file('repos.yml')
 end
 
-def o3c3(*ca)
+def o3c3 *ca, **kw
   o, e, c = Open3::capture3 *ca
   if c.exitstatus != 0
-    STDERR.puts "#{ca.join(' ')} ended with error: #{e}"
-    puts "Output: #{o}"
+    if kw[:verbose]
+      STDERR.puts "#{ca.join(' ')} ended with error: #{e}"
+    end
+    if kw[:verbose].kind_of?(Integer) && kw[:verbose] > 1
+      puts "Output: #{o}"
+    end
     false
   else
     true
