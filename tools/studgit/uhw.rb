@@ -7,7 +7,13 @@ require 'uri'
 require 'tqdm'
 
 def get_stud_info
-  YAML.load_file('repos.yml')
+  if File.exist?('repos.yml')
+    YAML.load_file('repos.yml')
+  elsif File.exist?('.git')
+    {
+      '.' => [['.', '.']]
+    }
+  end
 end
 
 def o3c3 *ca, **kw
