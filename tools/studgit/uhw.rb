@@ -10,9 +10,11 @@ def get_stud_info
   if File.exist?('repos.yml')
     YAML.load_file('repos.yml')
   elsif File.exist?('.git')
-    {
-      '.' => [['.', '.']]
-    }
+    { '.' => [{
+        'url' => '.',
+        'path' => '.',
+        'branch' => `git branch --show-current`.strip  # git branch --show-current
+    }]}
   end
 end
 
@@ -40,32 +42,36 @@ def iter_repos
       Dir.mkdir(s) unless File.exist?(s)
       Dir.chdir s do
         rr.each do | r |
-          u, d = if !r.kind_of?(Array) # Обычные люди
-            [r, URI(r).path.split('/').last.sub(".git", "")]
-          else # любители назвать репозиторий "-."
-            r # r[0], r[1]
+          url = r['url']
+          path = if r['path']
+            r['path']  # любители назвать репозиторий "-."
+          else
+            URI(url).path.split('/').last.sub(".git", "")  # обычные люди
           end
-          yield u, d
+          branch = r.fetch('branch', 'main')
+          yield url, path, branch
         end
       end
     end
   end
 end
 
-def init_repo r, rpa
+def init_repo r, rpa, br
   puts " - клонируем <#{r}> -> <#{rpa}>..."
   if o3c3 'git', 'clone', '--', r, rpa
     Dir::chdir rpa do
       o3c3 'git', 'config', 'core.autocrlf', 'input'
+      o3c3 'git', 'checkout', br
     end
   end
 end
 
-def rcu_repo r, rpa
+def rcu_repo r, rpa, br
   puts " - обновляем <#{r}> ..."
   Dir::chdir rpa do
     o3c3 'git', 'clean', '-fdX'
     o3c3 'git', 'restore', '.'
+    o3c3 'git', 'checkout', br
     o3c3 'git', 'pull', '--all', '--tags', '--rebase'
   end
 end
