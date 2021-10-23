@@ -61,7 +61,8 @@ def init_repo r, rpa, br
   if o3c3 'git', 'clone', '--', r, rpa
     Dir::chdir rpa do
       o3c3 'git', 'config', 'core.autocrlf', 'input'
-      o3c3 'git', 'checkout', br
+      o3c3 'git', 'branch', '-a'
+      o3c3 'git', 'switch', br
     end
   end
 end
@@ -71,7 +72,7 @@ def rcu_repo r, rpa, br
   Dir::chdir rpa do
     o3c3 'git', 'clean', '-fdX'
     o3c3 'git', 'restore', '.'
-    o3c3 'git', 'checkout', br
+    o3c3 'git', 'switch', br
     o3c3 'git', 'pull', '--all', '--tags', '--rebase'
   end
 end
