@@ -4,7 +4,7 @@
 require 'open3'
 require 'yaml'
 require 'uri'
-require 'tqdm'
+# require 'tqdm'
 
 def get_stud_info
   if File.exist?('repos.yml')
@@ -34,7 +34,7 @@ def o3c3 *ca, **kw
 end
 
 def iter_repos
-  get_stud_info.tqdm.each do | s, rr |
+  get_stud_info.each do | s, rr |  # get_stud_info.tqdm.each
     puts "Студент: #{s}"
     if rr.size == 0
       puts " - !! не опубликовал репозиториев..."
