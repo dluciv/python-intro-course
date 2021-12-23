@@ -4,6 +4,7 @@
 require 'open3'
 require 'yaml'
 require 'uri'
+require 'os'
 # require 'tqdm'
 
 def get_stud_info
@@ -56,6 +57,12 @@ def iter_repos
   end
 end
 
+def lf_here
+  if OS.posix?
+    `find . -type f -name '*.py' -print0 | xargs -0 dos2unix -q --`
+  end
+end
+
 def init_repo r, rpa, br
   puts " - клонируем <#{r}> -> <#{rpa}>..."
   if o3c3 'git', 'clone', '--', r, rpa
@@ -63,6 +70,7 @@ def init_repo r, rpa, br
       o3c3 'git', 'config', 'core.autocrlf', 'input'
       o3c3 'git', 'branch', '-a'
       o3c3 'git', 'switch', br
+      lf_here
     end
   end
 end
@@ -74,6 +82,7 @@ def rcu_repo r, rpa, br
     o3c3 'git', 'restore', '.'
     o3c3 'git', 'switch', br
     o3c3 'git', 'pull', '--all', '--tags', '--rebase'
+    lf_here
   end
 end
 
