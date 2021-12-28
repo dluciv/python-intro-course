@@ -59,7 +59,7 @@ end
 
 def lf_here
   if OS.posix?
-    `find . -type f -name '*.py' -print0 | xargs -0 dos2unix -q --`
+    `find . -type f -name '*.py' -print0 | xargs -0 dos2unix -q --keepdate --`
   end
 end
 
