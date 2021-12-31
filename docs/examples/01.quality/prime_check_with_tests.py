@@ -5,6 +5,7 @@
 """
 
 import unittest
+from tqdm import tqdm
 from sympy.ntheory import primetest, factorint
 
 def is_prime(num):
@@ -19,7 +20,6 @@ def is_prime(num):
     fi = factorint(num)
     return len(fi.keys()) == 1 and max(fi.values()) == 1
     # Менять до сюда =) ---- ^^^^^ ----
-
 
 class PrimeCheckTest(unittest.TestCase):
     """Тесты для функции проверки на простоту"""
@@ -48,7 +48,8 @@ class PrimeCheckTest(unittest.TestCase):
 
     def test_nonned_1000(self):
         """Проверка [0..999)"""
-        for i in range(1000):
+        print("Проверяем на [0..999)")
+        for i in tqdm(range(1000)):
             self.assertEqual(
                 is_prime(i), PrimeCheckTest.is_exatly_prime_64(i),
                 msg=f"Функция наврала на небольшом положительном {i}"
@@ -72,13 +73,12 @@ class PrimeCheckTest(unittest.TestCase):
             162401, 172081, 188461, 252601, 278545, 294409, 314821, 334153,
             340561, 399001, 410041, 449065, 488881, 512461
         ]
-
-        for _ in range(10000):
-            for c in carmichaels:
-                self.assertFalse(
-                    is_prime(c),
-                    msg=f"Функция наврала на числе Кармайкла {c}"
-                )
+        print("Проверяем на числах Кармайкла")
+        for c in tqdm(carmichaels):
+            self.assertFalse(
+                is_prime(c),
+                msg=f"Функция наврала на числе Кармайкла {c}"
+            )
 
     def test_trivial_pseudorandoms(self):
         """
@@ -91,7 +91,8 @@ class PrimeCheckTest(unittest.TestCase):
         s = 1
         c = 74
         m = 1 << 16 + 1
-        for _ in range(50):
+        print("Проверяем на линейных конгруэнтных псевдослучайных")
+        for _ in tqdm(range(50)):
             s = (s * a + c) % m
             r = s % ( 1 << 16 )  # 16 бит
             self.assertEqual(
