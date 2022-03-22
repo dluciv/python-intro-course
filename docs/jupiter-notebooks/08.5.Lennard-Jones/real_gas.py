@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+# example simulation: https://youtu.be/pQOashWcvMs
+
 import numba
 import matplotlib.pyplot as plt
 import numpy
