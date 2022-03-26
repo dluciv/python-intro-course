@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import random
 import timeit
-import sys
 import threading
 
 
-def sum_randoms(n: 'int'):
-    g = random.Random()
-
-    r = 0
+def n_randoms(n):
+    s = 123
+    m = 2**16+1
+    a = 75
+    c = 74
     for i in range(n):
-        r = (r + g.random()) % (sys.maxsize // 2)
+        s = (a*s + c) % m
 
-    return r
+    return s
 
 def test_all():
-    t = threading.Thread(target=lambda : sum_randoms(100000))
+    t = threading.Thread(target=lambda : n_randoms(10000000))
     t.start()
-    sum_randoms(100000)
+    # n_randoms(10000000)
+    n_randoms(10000000)
     t.join()
 
 if __name__ == '__main__':
-    print(timeit.timeit(test_all, number=40))
+    print(timeit.timeit(test_all, number=1))

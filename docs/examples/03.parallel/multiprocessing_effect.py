@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import random
 import time
-import sys
 import multiprocessing
 
-
-def sum_randoms(n):
-    g = random.Random()
-
-    r = 0
+def n_randoms(n):
+    s = 123
+    m = 2**16+1
+    a = 75
+    c = 74
     for i in range(n):
-        r += g.random()
+        s = (a*s + c) % m
 
-    return r
+    return s
 
 
 def test_all(pool):
-    l = pool.map(sum_randoms, [1000000] * 50)
+    l = pool.map(n_randoms, [1000000] * 50)
     return l
 
 
@@ -28,4 +26,4 @@ if __name__ == '__main__':
     print(test_all(pool))
     print("Time spent:", time.time() - t0)
 else:
-    print(__name__)
+    print("__name__:", __name__)
