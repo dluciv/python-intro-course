@@ -10,12 +10,12 @@ import requests
 urls = [
     "https://google.com/",
     "https://yandex.ru/",
-    "http://dluciv.name/",
+    "https://dluciv.name/",
     "https://edu.dluciv.name/",
     "https://spbau.ru/",
     "https://spbu.ru/",
     "https://mail.ru/",
-    "http://mil.ru/",
+    "https://mil.ru/",
     "https://github.com/"
 ]
 

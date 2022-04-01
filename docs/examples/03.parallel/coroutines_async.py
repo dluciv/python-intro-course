@@ -31,7 +31,7 @@ async def c3():
     print("c3-3")
 
 @asyncio.coroutine
-def test2coroutines2():
+def test3coroutines():
     yield from asyncio.wait([
         c1(),
         c2(),
@@ -41,4 +41,4 @@ def test2coroutines2():
 
 if __name__=='__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(test2coroutines2())
+    loop.run_until_complete(test3coroutines())
