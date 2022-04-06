@@ -8,10 +8,21 @@ from flask import Flask, request
 
 app = Flask(__name__, static_folder="static", static_url_path="", template_folder="templates")
 
+
+@app.context_processor
+def inject_globals():
+    return {
+        "isclever": [
+            "глупый",
+            "умный",
+            "маленький"
+        ]
+    }
+
 @app.route('/hello/<string:text>')
 @app.route('/hello')
 def hello_world(text=None):
-    return 'Just a plain text: "Hello from Flask!"' + (' With param ' + text if text else '')
+    return 'Just a plain text: "Hello from Flask!"' + (' With path .../' + text if text else '')
 
 
 @app.route('/')
@@ -28,7 +39,7 @@ def hello_name():
     elif request.method == 'POST':
         name_param=request.form.get('name')
 
-    if name_param==None:
+    if name_param is None:
         name_param="Анонимус"
 
     return flask.render_template(
