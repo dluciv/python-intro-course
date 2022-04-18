@@ -8,31 +8,39 @@ import asyncio
 @asyncio.coroutine
 def c1():
     print("c1-0")
-    yield from asyncio.sleep(0.5)
+    yield from asyncio.sleep(1)
     print("c1-1")
-    yield from asyncio.sleep(0.5)
+    yield from asyncio.sleep(1)
     print("c1-2")
-    yield from asyncio.sleep(0.5)
+    yield from asyncio.sleep(1)
     print("c1-3")
 
 
 @asyncio.coroutine
 def c2():
     for n in range(3):
-        yield from asyncio.sleep(0.5)
+        yield from asyncio.sleep(1)
         print("c2-%d" % (n))
     print("c2-3")
 
 
 async def c3():
     for n in range(3):
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
         print("c3-%d" % (n))
     print("c3-3")
 
-@asyncio.coroutine
-def test3coroutines():
-    yield from asyncio.wait([
+# @asyncio.coroutine
+# def test3coroutines():
+#     yield from asyncio.wait([
+#         c1(),
+#         c2(),
+#         c3()
+#     ])
+# vvvvv То же самое vvvvv
+
+async def test3coroutines():
+    await asyncio.wait([
         c1(),
         c2(),
         c3()

@@ -16,7 +16,7 @@ def n_randoms(n):
 
 
 def test_all(pool):
-    l = pool.map(n_randoms, [1000000] * 50)
+    l = pool.map(n_randoms, range(1_000_000, 1_000_000 + 50))
     return l
 
 

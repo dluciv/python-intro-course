@@ -4,24 +4,32 @@
 import sys
 import asyncio
 import PyQt5.QtWidgets as qw
-import asyncqt
-from asyncqt import asyncSlot
 import aiofiles  # https://pypi.org/project/aiofiles/
 import aiohttp
 
+# Problem here
+# https://github.com/gmarull/asyncqt/blob/5cb38a417608e04256db4bc7eb16dc4db88f7db0/asyncqt/__init__.py#L202
+# import asyncqt
+# from asyncqt import asyncSlot
+
+# Fixed here:
+# https://github.com/codelv/asyncqtpy/blob/def6207aa44c7de794345816fff514103c2440bb/asyncqtpy/__init__.py#L196
+import asyncqtpy as asq
+from asyncqtpy import asyncSlot
+
+# ... or here:
+# https://github.com/CabbageDevelopment/qasync/blob/58882735229b0d17836621d7d09ce02a6f80789d/qasync/__init__.py#L259
+# import qasync as asq
+# from qasync import asyncSlot
 
 urls = [
     "https://google.com/",
     "https://yandex.ru/",
-    "http://dluciv.name/",
+    "https://dluciv.name/",
     "https://edu.dluciv.name/",
     "https://spbau.ru/",
-    "https://spbu.ru/",
-    "https://mail.ru/",
-    "http://mil.ru/",
     "https://github.com/"
 ]
-
 
 class MainWindow(qw.QWidget):
     def __init__(self):
@@ -52,20 +60,19 @@ class MainWindow(qw.QWidget):
 
     @asyncSlot(bool)
     async def performLongOperation(self, evt):
-        self.goBtn.setEnabled(False)
+        # self.goBtn.setEnabled(False)
         print("A Going...")
         for c in range(10):
             print("A", c)
             await asyncio.sleep(1)
         print("A Done.")
-        self.goBtn.setEnabled(True)
+        # self.goBtn.setEnabled(True)
 
     @asyncSlot(bool)
     async def performLongFileOperation(self, evt):
         async with aiofiles.open("/etc/passwd", 'rb') as f:  # put your file here
             bts = await f.read()
             print("Got", len(bts), "bytes")
-
 
     @asyncSlot(bool)
     async def performLongNetOperation(self, evt):
@@ -78,7 +85,7 @@ class MainWindow(qw.QWidget):
 
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
-    loop = asyncqt.QEventLoop(app)
+    loop = asq.QEventLoop(app)
     asyncio.set_event_loop(loop)
 
     w = MainWindow()
