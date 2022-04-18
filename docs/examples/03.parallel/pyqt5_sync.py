@@ -13,7 +13,7 @@ urls = [
     "https://dluciv.name/",
     "https://edu.dluciv.name/",
     "https://spbau.ru/",
-    "https://spbu.ru/",
+    # "https://spbu.ru/",
     "https://mail.ru/",
     "https://mil.ru/",
     "https://github.com/"

@@ -8,7 +8,10 @@ size = comm.Get_size()
 rank = comm.Get_rank()
 
 def slow_function(arg):
-    return math.sin(arg) * rank
+    s = 0.0
+    for i in range(30_000):
+        s += math.sin(i*arg) * rank
+    return s
 
 if rank == 0:
     root_args = list(range(size))
@@ -25,4 +28,4 @@ local_response = slow_function(local_args)
 root_response = comm.gather(local_response, root=0)
 
 if rank == 0:
-    print(rank, root_response)
+    print(root_response)

@@ -4,11 +4,23 @@
 import sys
 import asyncio
 import PyQt6.QtWidgets as qw
-import asyncqt
-from asyncqt import asyncSlot
 import aiofiles  # https://pypi.org/project/aiofiles/
 import aiohttp
 
+# Problem here
+# https://github.com/gmarull/asyncqt/blob/5cb38a417608e04256db4bc7eb16dc4db88f7db0/asyncqt/__init__.py#L202
+# import asyncqt
+# from asyncqt import asyncSlot
+
+# Fixed here:
+# https://github.com/codelv/asyncqtpy/blob/def6207aa44c7de794345816fff514103c2440bb/asyncqtpy/__init__.py#L196
+import asyncqtpy as asq
+from asyncqtpy import asyncSlot
+
+# ... or here:
+# https://github.com/CabbageDevelopment/qasync/blob/58882735229b0d17836621d7d09ce02a6f80789d/qasync/__init__.py#L259
+# import qasync as asq
+# from qasync import asyncSlot
 
 urls = [
     "https://google.com/",
@@ -78,7 +90,7 @@ class MainWindow(qw.QWidget):
 
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)
-    loop = asyncqt.QEventLoop(app)
+    loop = asq.QEventLoop(app)
     asyncio.set_event_loop(loop)
 
     w = MainWindow()
