@@ -5,13 +5,12 @@
 import os
 import sys
 
-from PyQt6 import QtWidgets, QtCore, QtGui, uic
-from PyQt6.QtCore import pyqtSignal, QThread, QTimer
-from PyQt6.QtGui import QCursor, QAction
+from PyQt6 import QtWidgets, uic
 
 _scriptdir = os.path.dirname(os.path.realpath(__file__))
+uifile = os.path.join(_scriptdir, 'ui', 'main_dialog.ui')
 
-class MainDialog(*uic.loadUiType(os.path.join(_scriptdir, 'ui', 'main_dialog.ui'))):
+class MainDialog(*uic.loadUiType(uifile)):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setupUi(self)
@@ -22,7 +21,9 @@ class MainDialog(*uic.loadUiType(os.path.join(_scriptdir, 'ui', 'main_dialog.ui'
         self.helloButton.clicked.connect(self.hello)
 
     def hello(self):
-        self.helloLabel.setText("Привет")
+        self.helloLabel.setText(
+            "Привет" + ("!" if self.excCheckBox.isChecked() else "")
+        )
 
 
 if __name__ == '__main__':

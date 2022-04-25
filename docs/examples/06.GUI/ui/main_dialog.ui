@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>405</width>
-    <height>307</height>
+    <width>441</width>
+    <height>273</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -68,6 +68,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="excCheckBox">
+        <property name="text">
+         <string>Воск знак</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="helloButton">
