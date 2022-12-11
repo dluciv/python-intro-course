@@ -1,15 +1,10 @@
-#!/usr/bin/env -S python3.11
+#!/usr/bin/env python3
 
-from numbers import Number
-from typeguard import typechecked
-
-@typechecked
-def handle_simple(i: Number) -> None:
+def handle_simple(i: int) -> None:
     print(str(i) + "abc")
 
-handle_simple(123)
+handle_simple('123')
 
-@typechecked
 def handle_strings_or_ints(values: list[str | int]) -> str:
     return " + ".join(map(str, values))
 
