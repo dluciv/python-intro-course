@@ -67,11 +67,11 @@ class NedoForth(LineInterpreter):
             return  # Пустая строка или комментарий или shebang
         else:
             match l:
-                case 'стек':
+                case 'стек' | 'stack':
                     print(self.stack)
-                case 'вершина':
+                case 'вершина' | 'top':
                     print(self.stack[-1])
-                case 'ввод':
+                case 'ввод' | 'input':
                     self.stack.append(float(input()))
                 case '+':
                     y = self.stack.pop()

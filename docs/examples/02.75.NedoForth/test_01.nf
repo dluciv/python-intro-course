@@ -1,6 +1,6 @@
 #!/usr/bin/env ./nedoforth.py
 ввод
-ввод
+input
 стек
 +
-вершина
+top
