@@ -3,7 +3,6 @@
 from abc import ABC, abstractmethod
 import sys
 
-
 class LineInterpreter(ABC):
     '''
     Интерпретатор произвольного языка c 1 операцией на строку
@@ -59,6 +58,9 @@ class NedoForth(LineInterpreter):
         super().__init__(source_file_name)
         self.stack: list[float] = []
 
+    def __repr__(self) -> str:
+        return "Stack: " + repr(self.stack)
+
     def execute_current_line(self) -> None:
         # print(f"{self._current_line_idx}: {self.current_line()}")
         l = self.current_line()
@@ -72,11 +74,19 @@ class NedoForth(LineInterpreter):
                 case 'вершина' | 'top':
                     print(self.stack[-1])
                 case 'ввод' | 'input':
-                    self.stack.append(float(input()))
+                    self.stack.append(float(input("> ")))
                 case '+':
                     y = self.stack.pop()
                     x = self.stack.pop()
                     self.stack.append(x + y)
+                case '**':
+                    y = self.stack.pop()
+                    x = self.stack.pop()
+                    self.stack.append(x ** y)
+                case 'peek':
+                    self.stack.append(self.stack[-self.stack.pop()])
+                case 'reljump' | 'отпрыг':
+                    self.rel_jump(int(self.stack.pop()) - 1)
                 case other:
                     self.stack.append(float(l))
 
