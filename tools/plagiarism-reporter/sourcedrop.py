@@ -45,7 +45,35 @@ class PythonSource:
             "%s[%02d]" % (
                 self.file_name,
                 self.file_index) if self.file_index is not None else self.file_name
+    
+    def lcs(self, str1: str, str2: str):
+        max_mapping = 0
+        if len(str1) < 3 or len(str2) < 3:
+            return 0
+        min_length = min(len(str1), len(str2))  # min length or str
+        if min_length < 3:
+            return 0
+        for i in range(3, min_length + 1):
+            for k in range(0, len(str1) - i + 1):
+                for j in range(0, len(str2) - i + 1):
+                    if str1[k:k + i] == str2[j:j + i]:
+                        max_mapping = i
+        return max_mapping
 
+    def lst_lcs(self, str_list1: list, str_list2: list) -> dict:
+        mp = {}
+        for row1 in range(0, len(str_list1)):
+            for row2 in range(0, len(str_list2)):
+                map_len = self.lcs(str_list1[row1], str_list2[row2])
+                k = [row1, row2]
+                k1 = [row2, row1]
+                if mp.has_key(k):
+                    if map_len > mp[k]:
+                        mp[k] = map_len
+                else:
+                    mp[k] = map_len
+        return mp
+    
     def borrowed_fraction_from(
             self, other: 'PythonSource', minimal_match_length: int
     )-> Optional[float]:
@@ -55,7 +83,8 @@ class PythonSource:
             return None
         elif self.fingerprint_lexemes == other.fingerprint_lexemes:
             return 1.0
-
+        
+        """
         sm = difflib.SequenceMatcher(
             None,
             self.fingerprint_lexemes,
@@ -65,7 +94,11 @@ class PythonSource:
 
         common_size = sum(b.size for b in sm.get_matching_blocks()
                           if b.size >= minimal_match_length)
-
+        """
+        
+        mp = self.lst_lcs(self.fingerprint_lexemes, other)
+        common_size = sum(v for k, v in mp.items())
+       
         return float(common_size / len(self.fingerprint_lexemes))
 
     @staticmethod
