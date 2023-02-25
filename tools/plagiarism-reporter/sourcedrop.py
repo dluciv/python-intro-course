@@ -47,15 +47,59 @@ class PythonSource:
                 self.file_index) if self.file_index is not None else self.file_name
 
     def borrowed_fraction_from(
-            self, other: 'PythonSource', minimal_match_length: int
+            self,
+            other: 'PythonSource',
+            minimal_match_length: int,
+            consider_reordered: bool = True
     )-> Optional[float]:
         """Tells, what fraction of current source was (if it was)
         likely borrowed from another one"""
+        
+        # Trivial cases
+        
         if self is other or self.id_repr == other.id_repr:
             return None
         elif self.fingerprint_lexemes == other.fingerprint_lexemes:
             return 1.0
+        
+        # Invoke LCS until nothing is borrowed
 
+        # Markers from unicode provate use area,
+        # will never occur in source code
+        self_marker  = '\uE001'
+        other_marker = '\uE002'
+        
+        self_lexemes = self.fingerprint_lexemes.copy()
+        other_lexemes = other.fingerprint_lexemes.copy()
+        
+        common_size = 0
+        
+        resultative = True
+        while resultative:
+            sm = difflib.SequenceMatcher(
+                None,
+                self_lexemes,
+                other_lexemes,
+                False
+            )  # type: ignore
+            
+            resultative = False
+            for b in sm.get_matching_blocks():
+                self_index, other_index, match_size = tuple(b)
+                if match_size >= minimal_match_length:
+
+                    # Found something, will try next time
+                    # if we consider reordered plagiarism
+                    resultative = consider_reordered
+
+                    # Take the match into account
+                    common_size += match_size
+
+                    # Make the match different
+                    self_lexemes[self_index: self_index + match_size] = [self_marker] * match_size
+                    other_lexemes[other_index: other_index + match_size] = [other_marker] * match_size
+        
+        """
         sm = difflib.SequenceMatcher(
             None,
             self.fingerprint_lexemes,
@@ -65,7 +109,8 @@ class PythonSource:
 
         common_size = sum(b.size for b in sm.get_matching_blocks()
                           if b.size >= minimal_match_length)
-
+        """
+        
         return float(common_size / len(self.fingerprint_lexemes))
 
     @staticmethod
