@@ -11,6 +11,8 @@ def import_solver_funciton():
     import impl_gauss as ig
     if 'vgauss' in ig.__dict__:
         return ig.vgauss
+    elif 'vector_gauss' in ig.__dict__:
+        return ig.vector_gauss
     elif 'gauss' in ig.__dict__:
         return ig.gauss
     else:
