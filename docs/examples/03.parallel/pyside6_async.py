@@ -3,7 +3,7 @@
 
 import sys
 import asyncio
-import PyQt6.QtWidgets as qw
+import PySide6.QtWidgets as qw
 import aiofiles  # https://pypi.org/project/aiofiles/
 import aiohttp
 
@@ -62,8 +62,8 @@ class MainWindow(qw.QWidget):
         self.quitBtn.clicked.connect(self.close)
 
 
-    @asyncSlot(bool)
-    async def performLongOperation(self, evt):
+    @asyncSlot()
+    async def performLongOperation(self):
         self.goBtn.setEnabled(False)
         print("A Going...")
         for c in range(10):
@@ -72,15 +72,15 @@ class MainWindow(qw.QWidget):
         print("A Done.")
         self.goBtn.setEnabled(True)
 
-    @asyncSlot(bool)
-    async def performLongFileOperation(self, evt):
+    @asyncSlot()
+    async def performLongFileOperation(self):
         async with aiofiles.open("/etc/passwd", 'rb') as f:  # put your file here
             bts = await f.read()
             print("Got", len(bts), "bytes")
 
 
-    @asyncSlot(bool)
-    async def performLongNetOperation(self, evt):
+    @asyncSlot()
+    async def performLongNetOperation(self):
         async with aiohttp.ClientSession() as session:
             for u in urls:
                 try:
@@ -89,7 +89,6 @@ class MainWindow(qw.QWidget):
                     print("Got", u, "of", len(c), "bytes")
                 except Exception as e:
                     print(f"Error while getting {u}: {e}")
-
 
 if __name__ == '__main__':
     app = qw.QApplication(sys.argv)

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import PyQt6.QtWidgets as qw
+import PySide6.QtWidgets as qw
 import time
 
 import requests
