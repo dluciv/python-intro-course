@@ -3,14 +3,21 @@
 from mpi4py import MPI
 import math
 import itertools
+import time
 
 comm = MPI.COMM_WORLD
 cluster_size = comm.Get_size()
 process_rank = comm.Get_rank()
 
-
 def slow_function(arg_list):
-    return [-a * process_rank for a in arg_list]
+
+    def compute(arg):
+        s = 0.0
+        for i in range(3_000_000):
+            s += math.sin(i*arg) * process_rank
+        return s
+
+    return [(-a * process_rank, compute(a)) for a in arg_list]
 
 if process_rank == 0:
     # Пусть у нас есть сколько-то данных, которые нам надо обработать независимо от того, сколько процессов считает
@@ -26,7 +33,10 @@ else:
 local_args = comm.scatter(root_args, root=0)
 
 # У всех вызвать функцию от данных
+t0 = time.time()
 local_response = slow_function(local_args)
+t1 = time.time()
+print("Time spent:", t1 - t0)
 
 # Собрать у всех и отдать в root_response 0-му
 root_response = comm.gather(local_response, root=0)
