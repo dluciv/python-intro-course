@@ -26,10 +26,10 @@ local_args = comm.scatter(root_args, root=0)
 t0 = time.time()
 local_response = slow_function(local_args)
 t1 = time.time()
-print("Time spent:", t1 - t0)
 
 # Собрать у всех и отдать в root_response 0-му
 root_response = comm.gather(local_response, root=0)
 
 if process_rank == 0:
+    print("Time spent:", t1 - t0)
     print(root_response)
