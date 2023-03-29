@@ -1,25 +1,23 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3.11
 
 # https://makina-corpus.com/blog/metier/2015/python-http-server-with-the-new-async-await-syntax
 
+# Python >= 3.11
+
 import asyncio
 
-@asyncio.coroutine
-def c1():
+async def c1():
     print("c1-0")
-    yield from asyncio.sleep(1)
+    await asyncio.sleep(1)
     print("c1-1")
-    yield from asyncio.sleep(1)
+    await asyncio.sleep(1)
     print("c1-2")
-    yield from asyncio.sleep(1)
+    await asyncio.sleep(1)
     print("c1-3")
 
-
-@asyncio.coroutine
-def c2():
+async def c2():
     for n in range(3):
-        yield from asyncio.sleep(1)
+        await asyncio.sleep(1)
         print("c2-%d" % (n))
     print("c2-3")
 
@@ -30,22 +28,10 @@ async def c3():
         print("c3-%d" % (n))
     print("c3-3")
 
-# @asyncio.coroutine
-# def test3coroutines():
-#     yield from asyncio.wait([
-#         c1(),
-#         c2(),
-#         c3()
-#     ])
-# vvvvv То же самое vvvvv
-
 async def test3coroutines():
-    await asyncio.wait([
-        c1(),
-        c2(),
-        c3()
-    ])
-
+    async with asyncio.TaskGroup() as tg:
+        for c in [c1(), c2(), c3()]:
+            tg.create_task(c)
 
 if __name__=='__main__':
     loop = asyncio.get_event_loop()
