@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# pip install PyQt5Designer
+# pip install pyqt6 pyqt6_tools
 
 import os
 import sys
