@@ -32,7 +32,7 @@ def root():
     )
 
 
-@app.route('/name', methods = ['GET', 'POST'])
+@app.route('/anon_game', methods = ['GET', 'POST'])
 def hello_name():
     if request.method == 'GET':
         name_param=request.args.get('name')
@@ -43,7 +43,7 @@ def hello_name():
         name_param="Анонимус"
 
     return flask.render_template(
-        'name.html',
+        'hello_anon.html',
         name=name_param,
         method=request.method
     )
